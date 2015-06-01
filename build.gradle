@@ -1,0 +1,117 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+apply plugin: 'signing'
+apply plugin: 'idea'
+
+version = '0.1'
+group = 'com.datastax'
+def artifact = 'gradle-curriculum-plugin'
+
+configurations {
+  deployment
+  published.extendsFrom archives, signatures
+}
+
+repositories {
+  jcenter()
+  mavenLocal()
+  mavenCentral()
+}
+
+dependencies {
+  compile 'org.codehaus.groovy:groovy-all:2.3.10'
+  compile gradleApi()
+  compile 'com.github.houbie:lesscss-gradle-plugin:1.0.3-less-1.7.0'
+  compile 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.2'
+  deployment "org.apache.maven.wagon:wagon-webdav-jackrabbit:1.0-beta-7"
+}
+
+jar {
+  baseName = artifact
+}
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '2.4'
+}
+
+
+task sourceJar(type: Jar) {
+  description = 'An archive of the source code for Maven Central'
+  baseName = artifact
+  classifier = 'sources'
+  from sourceSets.main.groovy
+}
+
+
+task groovydocJar(type: Jar, dependsOn: groovydoc) {
+  description = 'An archive of the GroovyDocs for Maven Central'
+  baseName = artifact
+  classifier = 'javadoc'
+  from fileTree(groovydoc.destinationDir)
+}
+
+artifacts {
+  archives groovydocJar, sourceJar
+}
+
+signing {
+  sign configurations.archives
+}
+
+
+install {
+  repositories.mavenInstaller {
+    pom.project(pomConfiguration)
+  }
+}
+
+
+uploadPublished {
+  dependsOn << [ signArchives ]
+  repositories.mavenDeployer {
+    beforeDeployment { deployment ->
+      signPom(deployment)
+    }
+    name = 'mavenCentralReleaseDeployer'
+    repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+      authentication(userName: mavenCentralUsername, password: mavenCentralPassword)
+      releases(updatePolicy: 'always')
+      snapshots(updatePolicy: 'never')
+    }
+    pom.project(pomConfiguration)
+  }
+}
+
+
+
+
+//
+// A single place to create the POM configuration, so it can be
+// applied from the install and the upload tasks.
+//
+def getPomConfiguration() {
+  return {
+    name('DataStax Curriculum Plugin')
+    description('A Gradle plugin for the DataStax Curriculum build system.')
+    url('https://github.com/datastax-training/curriculum-plugin')
+    licenses {
+      license {
+        name 'The Apache Software License, Version 2.0'
+        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+        distribution 'repo'
+      }
+    }
+    developers {
+      developer {
+        id('tlberglund')
+        name('Tim Berglund')
+        email('tim.berglund@datastax.com')
+      }
+    }
+    scm {
+      connection('scm:https://tlberglund@github.com/datastax-training/curriculum-plugin')
+      developerConnection('scm:git@github.com:datastax-training/curriculum-plugin.git')
+      url('https://github.com/datastax-training/curriculum-plugin')
+    }
+  }
+}
