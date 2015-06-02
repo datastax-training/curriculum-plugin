@@ -28,6 +28,7 @@ class CurriculumPlugin
     applyTasks(project)
   }
 
+
   File findProjectRoot(project) {
     def projectRoot = project.projectDir.absolutePath
     def parts = [''] + projectRoot.tokenize(File.separator)
@@ -42,18 +43,42 @@ class CurriculumPlugin
 
 
   void applyTasks(Project project) {
-    def asciidoctorTask = project.tasks.getByName('asciidoctor')
+    configureLesscTask(project)
+    createAndConfigureSlidesTask(project)
+    createAndConfigureDocsTask(project)
+    createAndConfigurePresentationTask(project)
+    createAndConfigureCourseTask(project)
+  }
+
+
+  def configureLesscTask(project) {
     project.tasks.getByName('lessc').configure {
       sourceDir "${deckjsDir}/themes/style"
       include "**/*.less"
       destinationDir = "${buildDeckjsDir}/themes/style"
-      mustRunAfter asciidoctorTask
+      mustRunAfter project.tasks.getByName('asciidoctor')
     }
+  }
 
-    def slidesTask = project.tasks.create('slides', AsciidoctorTask)
-    def docsTask = project.tasks.create('docs', AsciidoctorTask)
 
-    slidesTask.configure {
+  def createAndConfigurePresentationTask(project) {
+    project.tasks.create('presentation').configure {
+      dependsOn = ['slides', 'lessc']
+    }
+  }
+
+
+  def createAndConfigureCourseTask(project) {
+    def task = project.tasks.create('course', CourseTask).configure {
+      curriculumRootDir = this.curriculumRootDir
+    }
+    project.tasks.getByName('slides').dependsOn task
+    project.tasks.getByName('docs').dependsOn task
+
+  }
+
+  def createAndConfigureSlidesTask(project) {
+    project.tasks.create('slides', AsciidoctorTask).configure {
       logDocuments = true
       sourceDir "${project.projectDir}/src"
       sources {
@@ -62,7 +87,7 @@ class CurriculumPlugin
 
       backends 'deckjs'
 
-      options template_dirs : [new File(templateDir, 'haml').absolutePath ]
+      options template_dirs: [new File(templateDir, 'haml').absolutePath]
       options eruby: 'erubis'
 
       attributes 'source-highlighter': 'coderay'
@@ -70,7 +95,7 @@ class CurriculumPlugin
       attributes idseparator: '-'
 
       resources {
-        from (project.projectDir) {
+        from(project.projectDir) {
           include 'images/**/*.svg'
           include 'images/**/*.jpg'
           include 'images/**/*.png'
@@ -82,15 +107,15 @@ class CurriculumPlugin
       }
 
       doLast {
-        copy {
+        project.copy {
           from("${frameworkDir}/deck.ext.js/extensions")
           into project.file("${buildDeckjsDir}/extensions")
         }
-        copy {
+        project.copy {
           from("${frameworkDir}/deck.split.js")
           into project.file("${buildDeckjsDir}/extensions/split/")
         }
-        copy {
+        project.copy {
           from("${frameworkDir}/deck.js-notes")
           into project.file("${buildDeckjsDir}/extensions/deck.js-notes/")
         }
@@ -99,9 +124,11 @@ class CurriculumPlugin
       description = 'Builds the deck.js presentation'
       group = "Curriculum"
     }
+  }
 
-    docsTask.configure {
 
+  def createAndConfigureDocsTask(project) {
+    project.tasks.create('docs', AsciidoctorTask).configure {
       sourceDir "${project.projectDir}/src"
       sources {
         include 'exercises.adoc'
