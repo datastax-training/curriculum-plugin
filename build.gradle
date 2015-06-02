@@ -1,21 +1,51 @@
-apply plugin: 'groovy'
-apply plugin: 'maven'
-apply plugin: 'signing'
-apply plugin: 'idea'
+plugins {
+  id 'groovy'
+  id 'idea'
+  id 'maven'
+  id 'com.jfrog.artifactory' version '3.1.1'
+}
+
+//apply plugin: 'signing'
 
 version = '0.1'
 group = 'com.datastax'
 def artifact = 'gradle-curriculum-plugin'
+
+artifactory {
+  contextUrl = 'https://datastax.artifactoryonline.com/datastax/repo)'
+  publish {
+    repository {
+      repoKey = 'libs-release-local'
+      username = 'admin'
+      password = 'password'
+    }
+  }
+  resolve {
+    repository {
+      repoKey = 'repo'
+      username = 'admin'
+      password = 'password'
+    }
+  }
+}
 
 configurations {
   deployment
   published.extendsFrom archives, signatures
 }
 
+
 repositories {
   jcenter()
   mavenLocal()
   mavenCentral()
+  maven {
+    url = "https://datastax.artifactoryonline.com/datastax/repo"
+    credentials {
+      username dataStaxRepositoryUsername
+      password dataStaxRepositoryPassword
+    }
+  }
 }
 
 dependencies {
@@ -23,7 +53,6 @@ dependencies {
   compile gradleApi()
   compile 'com.github.houbie:lesscss-gradle-plugin:1.0.3-less-1.7.0'
   compile 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.2'
-  deployment "org.apache.maven.wagon:wagon-webdav-jackrabbit:1.0-beta-7"
 }
 
 jar {
@@ -54,6 +83,7 @@ artifacts {
   archives groovydocJar, sourceJar
 }
 
+/*
 signing {
   sign configurations.archives
 }
@@ -115,3 +145,4 @@ def getPomConfiguration() {
     }
   }
 }
+*/

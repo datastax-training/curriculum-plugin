@@ -1,50 +1,14 @@
-Example
--------
-For an example of how to use this plugin, see the [Liquibase Workshop](https://github.com/tlberglund/liquibase-workshop) repo. That project contains a `build.gradle` showing exactly how to configure the plugin, and an example directory setup as well.
+# DataStax Curriculum Plugin
 
-News
-----
-Users of the latest version (0.7) of the Liquibase plugin need to change the
-way the plugin is configured in their projects.  Basically, the Liquibase
-configuration now goes in a ```liquibase``` block, instead of separate blocks,
-and the defaultChangeLogs variable has gone away.
 
-For example:
 
-```groovy
-changelogs {
-  main {
-    file = file('src/main/db/changelogs.groovy')
-  }
-}
 
-databases {
-  myDB {
-    url = 'jdbc:mysql://localhost:3306/my_db'
-	username= 'myusername'
-	password = 'mypassword'
-  }
-defaultDatabase = databases.myDB
-defaultChangeLogs = changelogs
+## Deploying
+To authenticate yourself to the DataStax Artifactory repo, you'll need to create a `gradle.properties` file like this:
+```
+dataStaxRepositoryUsername = <YOUR VPN USERNAME>
+dataStaxRepositoryPassword = <YOUR VPN PASSWORD>
 ```
 
-Becomes:
-
-```groovy
-liquibase {
-  changelogs {
-    main {
-      file = file('src/main/db/changelogs.groovy')
-    }
-  }
-  
-  databases {
-    myDB {
-      url = 'jdbc:mysql://localhost:3306/my_db'
-	  username= 'myusername'
-	  password = 'mypassword'
-    }
-  defaultDatabase = databases.myDB
-}
-```
+Contact helpdesk@datastax.com if you don't know your VPN username and password.
 
