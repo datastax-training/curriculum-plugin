@@ -64,6 +64,8 @@ class CurriculumPlugin
   def createAndConfigurePresentationTask(project) {
     project.tasks.create('presentation').configure {
       dependsOn = ['slides', 'lessc']
+      description = 'Builds the deck.js presentation and dependencies'
+      group = "Curriculum"
     }
   }
 
@@ -71,6 +73,8 @@ class CurriculumPlugin
   def createAndConfigureCourseTask(project) {
     def task = project.tasks.create('course', CourseTask).configure {
       curriculumRootDir = this.curriculumRootDir
+      description = 'Builds a course out of vertices'
+      group = "Curriculum"
     }
     project.tasks.getByName('slides').dependsOn task
     project.tasks.getByName('docs').dependsOn task
@@ -121,7 +125,7 @@ class CurriculumPlugin
         }
       }
 
-      description = 'Builds the deck.js presentation'
+      description = 'Builds the deck.js presentation slides only'
       group = "Curriculum"
     }
   }
