@@ -9,48 +9,38 @@ class CourseTask extends DefaultTask {
   File vertices
   String title
   File curriculumRootDir
+  String slideHeader
+  String exerciseHeader
+  String slidesFilename = 'src/slides.adoc'
+  String exercisesFilename = 'src/exercises.adoc'
 
   @TaskAction
   def courseAction() {
-    File slidesFile
-    File exercisesFile
+    vertices.each { vertex ->
+      project.copy {
+        from "${curriculumRootDir}/${vertex}/images"
+        into "${project.buildDir}/images/${vertex}"
+      }
+    }
 
-    slidesFile = project.file('src/slides.adoc')
-    slidesFile.withWriter { writer ->
-      writer.println """\
-= ${title}
-:backend: deckjs
-:deckjs_theme: datastax
-:deckjs_transition: fade
-:navigation:
-:status:
-:notes:
-:split:
-"""
+    project.file(slidesFilename).withWriter { writer ->
+      writer.println slideHeader
       vertices.each { vertex ->
         writer.println ":slide_path: slides"
-        writer.println ":image_path: ${project.buildDir}/images/${vertex}"
+        writer.println ":image_path: ../../images/${vertex}"
         writer.println "include::${curriculumRootDir}/${vertex}/src/includes.adoc[]"
-        project.copy {
-          from "${curriculumRootDir}/${vertex}/images"
-          into "${project.buildDir}/images/${vertex}"
-        }
       }
       writer.flush()
     }
 
-
-    exercisesFile = project.file('src/exercises.adoc')
+    def exercisesFile = project.file(exercisesFilename)
     exercisesFile.withWriter { writer ->
-      writer.println """\
-= ${title}
-:backend: html5
-"""
+      writer.println exerciseHeader
       vertices.each { vertex ->
         def vertexExercisesFile = "${curriculumRootDir}/${vertex}/src/exercises.adoc"
         if(project.file(vertexExercisesFile).exists()) {
-          writer.println ":image_path: ${project.buildDir}/images/${vertex}"
-          writer.println "include::../${exercisesFile}[]"
+          writer.println ":image_path: ../../images/${vertex}"
+          writer.println "include::${curriculumRootDir}/${vertex}/src/exercises.adoc[]"
         }
       }
       writer.flush()

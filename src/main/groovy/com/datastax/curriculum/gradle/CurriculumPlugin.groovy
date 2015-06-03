@@ -4,6 +4,7 @@ package com.datastax.curriculum.gradle
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 import org.asciidoctor.gradle.AsciidoctorTask
+import org.gradle.api.tasks.bundling.Zip
 
 
 class CurriculumPlugin
@@ -48,6 +49,16 @@ class CurriculumPlugin
     createAndConfigureDocsTask(project)
     createAndConfigurePresentationTask(project)
     createAndConfigureCourseTask(project)
+    createAndConfigureBundleTask(project)
+  }
+
+
+  def createAndConfigureBundleTask(project) {
+    project.tasks.create('bundle', Zip).configure {
+      dependsOn = ['presentation', 'docs'].collect { project.tasks.getByName(it) }
+      from project.buildDir
+      exclude "lessc/", "distributions/"
+    }
   }
 
 
@@ -80,6 +91,7 @@ class CurriculumPlugin
     project.tasks.getByName('docs').dependsOn task
 
   }
+
 
   def createAndConfigureSlidesTask(project) {
     project.tasks.create('slides', AsciidoctorTask).configure {
