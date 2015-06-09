@@ -50,6 +50,11 @@ class CurriculumPlugin
     createAndConfigurePresentationTask(project)
     createAndConfigureCourseTask(project)
     createAndConfigureBundleTask(project)
+    project.tasks.create('vertex').configure {
+      dependsOn = ['presentation', 'docs']
+      description = 'Builds all vertex materials'
+      group = 'Curriculum'
+    }
   }
 
 
@@ -58,6 +63,8 @@ class CurriculumPlugin
       dependsOn = ['presentation', 'docs'].collect { project.tasks.getByName(it) }
       from project.buildDir
       exclude "lessc/", "distributions/"
+      description = 'Bundles all course outputs into a distributable ZIP file'
+      group = 'Curriculum'
     }
   }
 
@@ -68,6 +75,8 @@ class CurriculumPlugin
       include "**/*.less"
       destinationDir = "${buildDeckjsDir}/themes/style"
       mustRunAfter project.tasks.getByName('asciidoctor')
+      description = 'Compiles less files into CSS'
+      group = 'Curriculum'
     }
   }
 
@@ -87,9 +96,8 @@ class CurriculumPlugin
       description = 'Builds a course out of vertices'
       group = "Curriculum"
     }
-    project.tasks.getByName('slides').dependsOn task
+    project.tasks.getByName('presentation').dependsOn task
     project.tasks.getByName('docs').dependsOn task
-
   }
 
 
