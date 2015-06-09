@@ -1,9 +1,50 @@
+buildscript {
+  repositories {
+    maven {
+      url "https://plugins.gradle.org/m2/"
+    }
+  }
+  dependencies {
+    classpath "com.gradle.publish:plugin-publish-plugin:0.9.0"
+  }
+}
+
 plugins {
   id 'groovy'
   id 'idea'
   id 'maven'
   id 'com.jfrog.artifactory' version '3.1.1'
 }
+
+apply plugin: "com.gradle.plugin-publish"
+
+pluginBundle {
+  website = 'http://www.github.com/datastax-training'
+  vcsUrl = 'http://www.github.com/datastax-training/curriculum-plugin'
+
+  description = 'A plugin for building DataStax Asciidoctor curriculum'
+
+  plugins {
+    curriculumPlugin {
+      id = 'com.datastax.gradle.curriculum.plugin'
+      displayName = 'DataStax curriculum plugin'
+      tags = ['curriculum', 'asciidoc', 'training', 'deckjs']
+      version = '0.1'
+    }
+  }
+}
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+  compile 'org.codehaus.groovy:groovy-all:2.3.10'
+  compile gradleApi()
+  compile 'com.github.houbie:lesscss-gradle-plugin:1.0.3-less-1.7.0'
+  compile 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.2'
+}
+
 
 //apply plugin: 'signing'
 
@@ -29,6 +70,7 @@ artifactory {
   }
 }
 
+/*
 configurations {
   deployment
   published.extendsFrom archives, signatures
@@ -46,14 +88,7 @@ repositories {
       password dataStaxRepositoryPassword
     }
   }
-}
-
-dependencies {
-  compile 'org.codehaus.groovy:groovy-all:2.3.10'
-  compile gradleApi()
-  compile 'com.github.houbie:lesscss-gradle-plugin:1.0.3-less-1.7.0'
-  compile 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.2'
-}
+}*/
 
 jar {
   baseName = artifact
@@ -78,7 +113,7 @@ task groovydocJar(type: Jar, dependsOn: groovydoc) {
   classifier = 'javadoc'
   from fileTree(groovydoc.destinationDir)
 }
-
+/*
 artifacts {
   archives groovydocJar, sourceJar
 }
