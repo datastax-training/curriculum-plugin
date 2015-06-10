@@ -30,19 +30,6 @@ class CurriculumPlugin
   }
 
 
-  File findProjectRoot(project) {
-    def projectRoot = project.projectDir.absolutePath
-    def parts = [''] + projectRoot.tokenize(File.separator)
-    def paths = (parts.size()..1).collect { depth -> parts[0..depth-1].join(File.separator) }
-    paths.each { path ->
-      if(project.file([path,'.projectroot'].join(File.separator)).exists()) {
-        projectRoot = path
-      }
-    }
-    return project.file(projectRoot)
-  }
-
-
   void applyTasks(Project project) {
     configureLesscTask(project)
     createAndConfigureSlidesTask(project)
@@ -50,6 +37,11 @@ class CurriculumPlugin
     createAndConfigurePresentationTask(project)
     createAndConfigureCourseTask(project)
     createAndConfigureBundleTask(project)
+    createAndConfigureVertexTask(project)
+  }
+
+
+  def createAndConfigureVertexTask(project) {
     project.tasks.create('vertex').configure {
       dependsOn = ['presentation', 'docs']
       description = 'Builds all vertex materials'
@@ -92,18 +84,17 @@ class CurriculumPlugin
 
   def createAndConfigureCourseTask(project) {
     def task = project.tasks.create('course', CourseTask).configure {
+      dependsOn = ['presentation', 'docs']
       curriculumRootDir = this.curriculumRootDir
       description = 'Builds a course out of vertices'
       group = "Curriculum"
     }
-    project.tasks.getByName('presentation').dependsOn task
-    project.tasks.getByName('docs').dependsOn task
   }
 
 
   def createAndConfigureSlidesTask(project) {
     project.tasks.create('slides', AsciidoctorTask).configure {
-      logDocuments = true
+      logDocuments = false
       sourceDir "${project.projectDir}/src"
       sources {
         include 'slides.adoc'
@@ -123,7 +114,6 @@ class CurriculumPlugin
           include 'images/**/*.svg'
           include 'images/**/*.jpg'
           include 'images/**/*.png'
-          include 'js/**/*.js'
         }
         from(frameworkDir) {
           include 'deck.js/**'
@@ -131,6 +121,13 @@ class CurriculumPlugin
       }
 
       doLast {
+        project.copy {
+          from(project.projectDir) {
+            include 'js/**/*.js'
+          }
+          into("${project.buildDir}/asciidoc/deckjs")
+          expand(['image_path': 'images'])
+        }
         project.copy {
           from("${frameworkDir}/deck.ext.js/extensions")
           into project.file("${buildDeckjsDir}/extensions")
@@ -175,8 +172,8 @@ class CurriculumPlugin
       options eruby: 'erubis'
 
       attributes 'source-highlighter': 'coderay'
-      attributes idprefix: ''
-      attributes idseparator: '-'
+      attributes image_path: 'docs'
+      attributes idprefix: '', idseparator: '-'
       attributes stylesheet: 'styles.css',
                  stylesdir: project.file("${frameworkDir}/asciidoctor-backends/haml/html5/css")
 
@@ -185,4 +182,16 @@ class CurriculumPlugin
     }
   }
 
+
+  File findProjectRoot(project) {
+    def projectRoot = project.projectDir.absolutePath
+    def parts = [''] + projectRoot.tokenize(File.separator)
+    def paths = (parts.size()..1).collect { depth -> parts[0..depth-1].join(File.separator) }
+    paths.each { path ->
+      if(project.file([path,'.projectroot'].join(File.separator)).exists()) {
+        projectRoot = path
+      }
+    }
+    return project.file(projectRoot)
+  }
 }

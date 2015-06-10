@@ -29,10 +29,15 @@ pluginBundle {
       id = 'com.datastax.gradle.curriculum.plugin'
       displayName = 'DataStax curriculum plugin'
       tags = ['curriculum', 'asciidoc', 'training', 'deckjs']
-      version = '0.1'
+      version = '0.1.1'
     }
   }
 }
+
+version = '0.1.1'
+group = 'com.datastax'
+def artifact = 'gradle-curriculum-plugin'
+
 
 repositories {
   jcenter()
@@ -47,10 +52,7 @@ dependencies {
 
 
 //apply plugin: 'signing'
-
-version = '0.1'
-group = 'com.datastax'
-def artifact = 'gradle-curriculum-plugin'
+/*
 
 artifactory {
   contextUrl = 'https://datastax.artifactoryonline.com/datastax/repo)'

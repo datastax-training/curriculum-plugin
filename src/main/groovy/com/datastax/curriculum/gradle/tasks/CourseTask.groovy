@@ -17,13 +17,14 @@ class CourseTask extends DefaultTask {
   def exercisesFile = "${project.projectDir}/src/exercises.adoc"
   def javaScriptFile = "${project.buildDir}/js/course.js"
 
-  Map<String, String> slideHeader
-  Map<String, String> exerciseHeader
+  Map<String, String> slideHeader = [:]
+  Map<String, String> exerciseHeader = [:]
 
 
   @TaskAction
   def courseAction() {
     vertexList = project.file(vertexFile).collect()
+    slideHeader.customjs = '../../js/course.js'
     copyImagesAndResources()
     writeMasterSlideAsciidoc()
     writeMasterExerciseAsciidoc()
@@ -31,15 +32,34 @@ class CourseTask extends DefaultTask {
 
 
   def copyImagesAndResources() {
-    combineVertexJavaScript(project.file(javaScriptFile))
+    def file = project.file(javaScriptFile)
+    def fullPath = file.absolutePath
+    project.file(fullPath[0..(fullPath.lastIndexOf(File.separator))]).mkdirs()
+    combineVertexJavaScript(file)
     copyVertexImages()
   }
 
 
   def combineVertexJavaScript(File combinedJSFile) {
+    def tempDir = File.createTempDir()
+
+    println "putting stuff in ${tempDir}"
+    vertexList.each { vertex ->
+      project.copy {
+        println "copying from ${curriculumRootDir}/${vertex}/js"
+        from("${curriculumRootDir}/${vertex}/js") {
+          include '**/*.js'
+        }
+        println "into ${tempDir}/${vertex}/js"
+        into("${tempDir}/${vertex}/js")
+        expand(['image_path': "../../images/${vertex}"])
+      }
+    }
+
     combinedJSFile.withWriter { writer ->
       vertexList.each { vertex ->
-        project.fileTree("${curriculumRootDir}/${vertex}/js").each { file ->
+        project.fileTree("${tempDir}/${vertex}/js").each { file ->
+          println "merging ${file}"
           file.withReader { reader ->
             writer.write(reader.text)
           }
@@ -80,6 +100,7 @@ class CourseTask extends DefaultTask {
     exercisesFile.withWriter { writer ->
       writer.println "= ${title}"
       writer.println convertHeaderMapToString(exerciseHeader)
+      writer.println '\n\n'
       vertexList.each { vertex ->
         def vertexExercisesFile = "${curriculumRootDir}/${vertex}/src/exercises.adoc"
         if(project.file(vertexExercisesFile).exists()) {
@@ -90,6 +111,11 @@ class CourseTask extends DefaultTask {
       }
       writer.flush()
     }
+  }
+
+
+  def relativize(basePath, path) {
+    new File(basePath).toURI().relativize(new File(path).toURI()).getPath()
   }
 
 
