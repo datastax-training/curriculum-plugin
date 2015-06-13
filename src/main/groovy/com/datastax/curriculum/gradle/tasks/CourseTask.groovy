@@ -23,7 +23,7 @@ class CourseTask extends DefaultTask {
 
   @TaskAction
   def courseAction() {
-    vertexList = project.file(vertexFile).collect()
+    vertexList = project.file(vertexFile).collect().findAll { it }
     slideHeader.customjs = '../../js/course.js'
     copyImagesAndResources()
     writeMasterSlideAsciidoc()
@@ -43,23 +43,21 @@ class CourseTask extends DefaultTask {
   def combineVertexJavaScript(File combinedJSFile) {
     def tempDir = File.createTempDir()
 
-    println "putting stuff in ${tempDir}"
+    // Copy vertex JS files to temp dir, expanding image_path macros
     vertexList.each { vertex ->
       project.copy {
-        println "copying from ${curriculumRootDir}/${vertex}/js"
         from("${curriculumRootDir}/${vertex}/js") {
           include '**/*.js'
         }
-        println "into ${tempDir}/${vertex}/js"
         into("${tempDir}/${vertex}/js")
         expand(['image_path': "../../images/${vertex}"])
       }
     }
 
+    // Munge all vertex JS files into one big JS file
     combinedJSFile.withWriter { writer ->
       vertexList.each { vertex ->
         project.fileTree("${tempDir}/${vertex}/js").each { file ->
-          println "merging ${file}"
           file.withReader { reader ->
             writer.write(reader.text)
           }
@@ -84,10 +82,12 @@ class CourseTask extends DefaultTask {
     project.file(slidesFile).withWriter { writer ->
       writer.println "= ${title}"
       writer.println convertHeaderMapToString(slideHeader)
+      writer.println ''
       vertexList.each { vertex ->
         writer.println ":slide_path: slides"
         writer.println ":image_path: ../../images/${vertex}"
         writer.println "include::${curriculumRootDir}/${vertex}/src/includes.adoc[]"
+        writer.println ''
       }
       writer.flush()
     }
@@ -100,13 +100,14 @@ class CourseTask extends DefaultTask {
     exercisesFile.withWriter { writer ->
       writer.println "= ${title}"
       writer.println convertHeaderMapToString(exerciseHeader)
-      writer.println '\n\n'
+      writer.println ''
       vertexList.each { vertex ->
         def vertexExercisesFile = "${curriculumRootDir}/${vertex}/src/exercises.adoc"
         if(project.file(vertexExercisesFile).exists()) {
           writer.println ":exercise_number: ${exerciseNumber++}"
           writer.println ":image_path: ../../images/${vertex}"
           writer.println "include::${curriculumRootDir}/${vertex}/src/exercises.adoc[]"
+          writer.println ''
         }
       }
       writer.flush()

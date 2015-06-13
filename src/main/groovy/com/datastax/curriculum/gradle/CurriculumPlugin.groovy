@@ -1,6 +1,7 @@
 
 package com.datastax.curriculum.gradle
 
+import com.datastax.curriculum.gradle.tasks.SlidesTask
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 import org.asciidoctor.gradle.AsciidoctorTask
@@ -32,8 +33,8 @@ class CurriculumPlugin
 
   void applyTasks(Project project) {
     configureLesscTask(project)
-    createAndConfigureSlidesTask(project)
-    createAndConfigureDocsTask(project)
+    createAndConfigureSlidesTasks(project)
+    createAndConfigureDocsTasks(project)
     createAndConfigurePresentationTask(project)
     createAndConfigureCourseTask(project)
     createAndConfigureBundleTask(project)
@@ -43,7 +44,7 @@ class CurriculumPlugin
 
   def createAndConfigureVertexTask(project) {
     project.tasks.create('vertex').configure {
-      dependsOn = ['presentation', 'docs']
+      dependsOn = ['vertexSlides', 'vertexDocs']
       description = 'Builds all vertex materials'
       group = 'Curriculum'
     }
@@ -52,7 +53,7 @@ class CurriculumPlugin
 
   def createAndConfigureBundleTask(project) {
     project.tasks.create('bundle', Zip).configure {
-      dependsOn = ['presentation', 'docs'].collect { project.tasks.getByName(it) }
+      dependsOn = ['course']
       from project.buildDir
       exclude "lessc/", "distributions/"
       description = 'Bundles all course outputs into a distributable ZIP file'
@@ -75,7 +76,7 @@ class CurriculumPlugin
 
   def createAndConfigurePresentationTask(project) {
     project.tasks.create('presentation').configure {
-      dependsOn = ['slides', 'lessc']
+      //dependsOn = ['slides', 'lessc']
       description = 'Builds the deck.js presentation and dependencies'
       group = "Curriculum"
     }
@@ -84,7 +85,7 @@ class CurriculumPlugin
 
   def createAndConfigureCourseTask(project) {
     def task = project.tasks.create('course', CourseTask).configure {
-      dependsOn = ['presentation', 'docs']
+      dependsOn = ['courseSlides', 'courseDocs']
       curriculumRootDir = this.curriculumRootDir
       description = 'Builds a course out of vertices'
       group = "Curriculum"
@@ -92,9 +93,21 @@ class CurriculumPlugin
   }
 
 
-  def createAndConfigureSlidesTask(project) {
-    project.tasks.create('slides', AsciidoctorTask).configure {
-      logDocuments = false
+  def createAndConfigureSlidesTasks(project) {
+    ['vertexSlides', 'courseSlides'].each { taskName ->
+      def task = project.tasks.create(taskName, SlidesTask)
+      configureSlidesTask(task)
+    }
+  }
+
+
+  def configureSlidesTask(task) {
+    task.configure {
+      imagePath = 'images'
+
+      frameworkDir = this.frameworkDir
+      buildDeckjsDir = this.buildDeckjsDir
+
       sourceDir "${project.projectDir}/src"
       sources {
         include 'slides.adoc'
@@ -102,12 +115,12 @@ class CurriculumPlugin
 
       backends 'deckjs'
 
-      options template_dirs: [new File(templateDir, 'haml').absolutePath]
-      options eruby: 'erubis'
+      options template_dirs: [new File(templateDir, 'haml').absolutePath],
+              eruby: 'erubis'
 
-      attributes 'source-highlighter': 'coderay'
-      attributes idprefix: ''
-      attributes idseparator: '-'
+      attributes 'source-highlighter': 'coderay',
+              idprefix: '',
+              idseparator: '-'
 
       resources {
         from(project.projectDir) {
@@ -120,46 +133,37 @@ class CurriculumPlugin
         }
       }
 
-      doLast {
-        project.copy {
-          from(project.projectDir) {
-            include 'js/**/*.js'
-          }
-          into("${project.buildDir}/asciidoc/deckjs")
-          expand(['image_path': 'images'])
-        }
-        project.copy {
-          from("${frameworkDir}/deck.ext.js/extensions")
-          into project.file("${buildDeckjsDir}/extensions")
-        }
-        project.copy {
-          from("${frameworkDir}/deck.split.js")
-          into project.file("${buildDeckjsDir}/extensions/split/")
-        }
-        project.copy {
-          from("${frameworkDir}/deck.js-notes")
-          into project.file("${buildDeckjsDir}/extensions/deck.js-notes/")
-        }
-      }
-
+      dependsOn << ['lessc']
       description = 'Builds the deck.js presentation slides only'
       group = "Curriculum"
     }
   }
 
 
-  def createAndConfigureDocsTask(project) {
-    project.tasks.create('docs', AsciidoctorTask).configure {
+  def createAndConfigureDocsTasks(project) {
+    def task
+
+    task = project.tasks.create('courseDocs', AsciidoctorTask)
+    configureDocsTask(task)
+
+    task = project.tasks.create('vertexDocs', AsciidoctorTask)
+    configureDocsTask(task)
+    task.attributes image_path: 'images',
+                    exercise_number: 0
+  }
+
+
+  def configureDocsTask(task) {
+    task.configure {
       sourceDir "${project.projectDir}/src"
       sources {
-        include 'exercises.adoc'
-        include 'outline.adoc'
-        include 'objectives.adoc'
-        include 'instructor-notes.adoc'
-        include 'solutions.adoc'
+        exclude 'slides.adoc'
+        exclude 'includes.adoc'
+        exclude 'slides/**/*'
       }
 
       backends 'html5'
+
       resources {
         from (project.projectDir) {
           include 'images/**/*.svg'
@@ -168,16 +172,18 @@ class CurriculumPlugin
         }
       }
 
-      options template_dirs : [new File(templateDir, 'haml').absolutePath ]
-      options eruby: 'erubis'
+      options template_dirs : [new File(templateDir, 'haml').absolutePath ],
+              eruby: 'erubis'
 
-      attributes 'source-highlighter': 'coderay'
-      attributes image_path: 'docs'
-      attributes idprefix: '', idseparator: '-'
-      attributes stylesheet: 'styles.css',
-                 stylesdir: project.file("${frameworkDir}/asciidoctor-backends/haml/html5/css")
+      attributes 'source-highlighter': 'coderay',
+              /*image_path: attributes.image_path ?: 'images',*/
+              idprefix: '',
+              idseparator: '-',
+              stylesheet: 'styles.css',
+              stylesdir: project.file("${frameworkDir}/asciidoctor-backends/haml/html5/css")
 
-      description = "Builds the exercises and other supporting docs"
+      dependsOn << 'lessc'
+      description = "Builds documents that support the slides"
       group = "Curriculum"
     }
   }
