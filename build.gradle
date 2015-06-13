@@ -18,6 +18,8 @@ plugins {
 
 apply plugin: "com.gradle.plugin-publish"
 
+def versionNumber = '0.1.3'
+
 pluginBundle {
   website = 'http://www.github.com/datastax-training'
   vcsUrl = 'http://www.github.com/datastax-training/curriculum-plugin'
@@ -29,12 +31,12 @@ pluginBundle {
       id = 'com.datastax.gradle.curriculum.plugin'
       displayName = 'DataStax curriculum plugin'
       tags = ['curriculum', 'asciidoc', 'training', 'deckjs']
-      version = '0.1.3'
+      version = versionNumber
     }
   }
 }
 
-version = '0.1.3'
+version = versionNumber
 group = 'com.datastax'
 def artifact = 'gradle-curriculum-plugin'
 
