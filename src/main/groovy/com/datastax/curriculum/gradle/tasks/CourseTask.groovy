@@ -15,6 +15,7 @@ class CourseTask extends DefaultTask {
   def curriculumRootDir
   def slidesFile = "${project.projectDir}/src/slides.adoc"
   def exercisesFile = "${project.projectDir}/src/exercises.adoc"
+  def solutionsFile = "${project.projectDir}/src/solutions.adoc"
   def javaScriptFile = "${project.buildDir}/js/course.js"
 
   Map<String, String> slideHeader = [:]
@@ -28,6 +29,7 @@ class CourseTask extends DefaultTask {
     copyImagesAndResources()
     writeMasterSlideAsciidoc()
     writeMasterExerciseAsciidoc()
+    writeMasterSolutionAsciidoc()
   }
 
 
@@ -115,8 +117,24 @@ class CourseTask extends DefaultTask {
   }
 
 
-  def relativize(basePath, path) {
-    new File(basePath).toURI().relativize(new File(path).toURI()).getPath()
+  def writeMasterSolutionAsciidoc() {
+    int exerciseNumber = 1
+    def exercisesFile = project.file(solutionsFile)
+    exercisesFile.withWriter { writer ->
+      writer.println "= ${title}"
+      writer.println convertHeaderMapToString(exerciseHeader) // re-use exercise header
+      writer.println ''
+      vertexList.each { vertex ->
+        def vertexSolutionsFile = "${curriculumRootDir}/${vertex}/src/solutions.adoc"
+        if(project.file(vertexSolutionsFile).exists()) {
+          writer.println ":exercise_number: ${exerciseNumber++}"
+          writer.println ":image_path: ../../images/${vertex}"
+          writer.println "include::${curriculumRootDir}/${vertex}/src/solutions.adoc[]"
+          writer.println ''
+        }
+      }
+      writer.flush()
+    }
   }
 
 

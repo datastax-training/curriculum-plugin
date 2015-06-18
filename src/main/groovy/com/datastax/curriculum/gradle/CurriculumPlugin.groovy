@@ -5,6 +5,7 @@ import com.datastax.curriculum.gradle.tasks.SlidesTask
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 import org.asciidoctor.gradle.AsciidoctorTask
+import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.bundling.Zip
 
 
@@ -33,30 +34,28 @@ class CurriculumPlugin
 
   void applyTasks(Project project) {
     configureLesscTask(project)
+    configureCleanTask(project)
     createAndConfigureSlidesTasks(project)
     createAndConfigureDocsTasks(project)
-    createAndConfigurePresentationTask(project)
-    createAndConfigureCourseTask(project)
-    createAndConfigureBundleTask(project)
+    createAndConfigureCourseTasks(project)
     createAndConfigureVertexTask(project)
+  }
+
+
+  def configureCleanTask(project) {
+    def task = project.tasks.create('deleteCourseSources', Delete).configure {
+      delete project.fileTree("${project.projectDir}/src")
+    }
+    project.tasks.getByName('clean').configure {
+      dependsOn << 'deleteCourseSources'
+    }
   }
 
 
   def createAndConfigureVertexTask(project) {
     project.tasks.create('vertex').configure {
-      dependsOn = ['vertexSlides', 'vertexDocs']
+      dependsOn << ['vertexSlides', 'vertexDocs']
       description = 'Builds all vertex materials'
-      group = 'Curriculum'
-    }
-  }
-
-
-  def createAndConfigureBundleTask(project) {
-    project.tasks.create('bundle', Zip).configure {
-      dependsOn = ['course']
-      from project.buildDir
-      exclude "lessc/", "distributions/"
-      description = 'Bundles all course outputs into a distributable ZIP file'
       group = 'Curriculum'
     }
   }
@@ -74,30 +73,52 @@ class CurriculumPlugin
   }
 
 
-  def createAndConfigurePresentationTask(project) {
-    project.tasks.create('presentation').configure {
-      //dependsOn = ['slides', 'lessc']
-      description = 'Builds the deck.js presentation and dependencies'
-      group = "Curriculum"
-    }
-  }
-
-
-  def createAndConfigureCourseTask(project) {
-    def task = project.tasks.create('course', CourseTask).configure {
-      dependsOn = ['courseSlides', 'courseDocs']
+  def createAndConfigureCourseTasks(project) {
+    project.tasks.create('courseResources', CourseTask).configure {
       curriculumRootDir = this.curriculumRootDir
-      description = 'Builds a course out of vertices'
-      group = "Curriculum"
+      description = 'Combines vertices into course sources'
+      group = 'Curriculum'
+    }
+
+    project.tasks.create('course').configure {
+      dependsOn << ['courseSlides', 'courseDocs']
+      description = 'Builds a course'
+      group = 'Curriculum'
+    }
+
+    project.tasks.create('bundle', Zip).configure {
+      dependsOn << ['course']
+      from project.buildDir
+      exclude "lessc/", "distributions/"
+      description = 'Bundles all course outputs into a distributable ZIP file'
+      group = 'Curriculum'
     }
   }
 
 
   def createAndConfigureSlidesTasks(project) {
-    ['vertexSlides', 'courseSlides'].each { taskName ->
-      def task = project.tasks.create(taskName, SlidesTask)
-      configureSlidesTask(task)
-    }
+    def task
+
+    task = project.tasks.create('vertexSlides', SlidesTask)
+    configureSlidesTask(task)
+
+    task = project.tasks.create('courseSlides', SlidesTask)
+    configureSlidesTask(task)
+    task.dependsOn << ['courseResources']
+  }
+
+
+  def createAndConfigureDocsTasks(project) {
+    def task
+
+    task = project.tasks.create('vertexDocs', AsciidoctorTask)
+    configureDocsTask(task)
+    task.attributes image_path: 'images',
+                    exercise_number: 0
+
+    task = project.tasks.create('courseDocs', AsciidoctorTask)
+    configureDocsTask(task)
+    task.dependsOn << ['courseResources']
   }
 
 
@@ -135,21 +156,8 @@ class CurriculumPlugin
 
       dependsOn << ['lessc']
       description = 'Builds the deck.js presentation slides only'
-      group = "Curriculum"
+      group = 'Curriculum'
     }
-  }
-
-
-  def createAndConfigureDocsTasks(project) {
-    def task
-
-    task = project.tasks.create('courseDocs', AsciidoctorTask)
-    configureDocsTask(task)
-
-    task = project.tasks.create('vertexDocs', AsciidoctorTask)
-    configureDocsTask(task)
-    task.attributes image_path: 'images',
-                    exercise_number: 0
   }
 
 
@@ -176,15 +184,14 @@ class CurriculumPlugin
               eruby: 'erubis'
 
       attributes 'source-highlighter': 'coderay',
-              /*image_path: attributes.image_path ?: 'images',*/
               idprefix: '',
               idseparator: '-',
               stylesheet: 'styles.css',
               stylesdir: project.file("${frameworkDir}/asciidoctor-backends/haml/html5/css")
 
       dependsOn << 'lessc'
-      description = "Builds documents that support the slides"
-      group = "Curriculum"
+      description = 'Builds documents that support the slides'
+      group = 'Curriculum'
     }
   }
 
