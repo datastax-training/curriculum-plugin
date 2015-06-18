@@ -34,21 +34,10 @@ class CurriculumPlugin
 
   void applyTasks(Project project) {
     configureLesscTask(project)
-    configureCleanTask(project)
     createAndConfigureSlidesTasks(project)
     createAndConfigureDocsTasks(project)
     createAndConfigureCourseTasks(project)
     createAndConfigureVertexTask(project)
-  }
-
-
-  def configureCleanTask(project) {
-    def task = project.tasks.create('deleteCourseSources', Delete).configure {
-      delete project.fileTree("${project.projectDir}/src")
-    }
-    project.tasks.getByName('clean').configure {
-      dependsOn << 'deleteCourseSources'
-    }
   }
 
 
