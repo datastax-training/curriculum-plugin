@@ -103,7 +103,7 @@ class CurriculumPlugin
     task = project.tasks.create('vertexDocs', AsciidoctorTask)
     configureDocsTask(task)
     task.attributes image_path: 'images',
-                    exercise_number: 0
+                    exercise_number: 1
 
     task = project.tasks.create('courseDocs', AsciidoctorTask)
     configureDocsTask(task)
