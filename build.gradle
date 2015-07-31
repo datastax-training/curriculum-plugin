@@ -50,6 +50,8 @@ dependencies {
   compile gradleApi()
   compile 'com.github.houbie:lesscss-gradle-plugin:1.0.3-less-1.7.0'
   compile 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.2'
+  runtime 'org.asciidoctor:asciidoctorj-groovy-dsl:1.0.0.Alpha1'
+  runtime 'org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.8'
 }
 
 
