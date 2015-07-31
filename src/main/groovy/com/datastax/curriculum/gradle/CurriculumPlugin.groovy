@@ -124,9 +124,13 @@ class CurriculumPlugin
       description = 'Exports a screenshot of each slide in the deck to PNG'
       group = 'Curriculum'
       workingDir = this.slidesOutputDir
+
       // set configuration that depends on workingDir being set
       // QUESTION is there a way to get this method to run automatically?
       postConfigure()
+
+      // Disable hardware acceleration due to Oracle JVM 8u51 bug on OSX
+      jvmArgs = ['-Dprism.order=sw']
     }
   }
 
