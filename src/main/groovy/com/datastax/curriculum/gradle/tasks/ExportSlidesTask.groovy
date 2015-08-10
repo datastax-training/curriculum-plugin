@@ -25,7 +25,11 @@ class ExportSlidesTask extends JavaExec {
   String profile = 'deck2pdf/deckjs-handout'
 
   ExportSlidesTask() {
-    main = 'me.champeau.deck2pdf.Main'
+
+    // setMain('') instead of main = ''
+    // This works around an odd intermittent exception where Groovy complains about
+    // the right-side argument being a String. Don't ask me.
+    setMain('me.champeau.deck2pdf.Main')
     configureDependencies()
     configureClasspath()
   }

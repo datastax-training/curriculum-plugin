@@ -5,8 +5,6 @@ import com.datastax.curriculum.gradle.tasks.SlidesTask
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 import org.asciidoctor.gradle.AsciidoctorTask
-import org.gradle.api.tasks.Delete
-import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.bundling.Zip
 
 class CurriculumPlugin
@@ -29,7 +27,7 @@ class CurriculumPlugin
     templateDir = new File(frameworkDir, 'asciidoctor-backends')
     handoutConfDir = new File(frameworkDir, 'handout')
     deckjsDir = new File(frameworkDir, 'deck.js')
-    slidesOutputDir = new File(project.buildDir, 'asciidoc/deckjs')
+    slidesOutputDir = project.buildDir
     buildDeckjsDir = new File(slidesOutputDir, 'deck.js')
 
     applyTasks(project)
@@ -304,6 +302,11 @@ class CurriculumPlugin
       frameworkDir = this.frameworkDir
       buildDeckjsDir = this.buildDeckjsDir
 
+      dependsOn << ['lessc']
+      description = 'Builds the deck.js presentation slides only'
+      group = 'Curriculum'
+
+      outputDir project.buildDir
       sourceDir "${project.projectDir}/src"
       sources {
         include 'slides.adoc'
@@ -328,15 +331,26 @@ class CurriculumPlugin
         }
       }
 
-      dependsOn << ['lessc']
-      description = 'Builds the deck.js presentation slides only'
-      group = 'Curriculum'
+      // Necessary to clean up bundling of course materials
+      doLast {
+        project.copy {
+          from "${project.buildDir}/deckjs"
+          into project.buildDir
+        }
+        project.delete "${project.buildDir}/deckjs"
+      }
+
     }
   }
 
 
   def configureDocsTask(task) {
     task.configure {
+      dependsOn << 'lessc'
+      description = 'Builds documents that support the slides'
+      group = 'Curriculum'
+
+      outputDir project.buildDir
       sourceDir "${project.projectDir}/src"
       sources {
         exclude 'slides.adoc'
@@ -362,9 +376,14 @@ class CurriculumPlugin
               stylesheet: 'styles.css',
               stylesdir: project.file("${frameworkDir}/asciidoctor-backends/haml/html5/css")
 
-      dependsOn << 'lessc'
-      description = 'Builds documents that support the slides'
-      group = 'Curriculum'
+      // Necessary to clean up bundling of course materials
+      doLast {
+        project.copy {
+          from "${project.buildDir}/html5"
+          into project.buildDir
+        }
+        project.delete "${project.buildDir}/html5"
+      }
     }
   }
 
