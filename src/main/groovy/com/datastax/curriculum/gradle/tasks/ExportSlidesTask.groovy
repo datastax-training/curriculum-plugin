@@ -13,7 +13,7 @@ class ExportSlidesTask extends JavaExec {
   String format = 'jpg'
 
   @Input
-  Integer width = 1440
+  Integer width = 1600
 
   @Input
   Integer height = 900

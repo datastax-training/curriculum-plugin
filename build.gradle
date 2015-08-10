@@ -18,7 +18,7 @@ plugins {
 
 apply plugin: "com.gradle.plugin-publish"
 
-def versionNumber = '0.1.6-SNAPSHOT'
+def versionNumber = '0.1.7-SNAPSHOT'
 
 pluginBundle {
   website = 'http://www.github.com/datastax-training'
@@ -61,7 +61,7 @@ jar {
 
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '2.4'
+  gradleVersion = '2.5'
 }
 
 
