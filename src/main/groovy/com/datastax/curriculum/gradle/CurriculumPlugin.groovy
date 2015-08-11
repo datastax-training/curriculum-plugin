@@ -15,6 +15,7 @@ class CurriculumPlugin
   File handoutConfDir
   File deckjsDir
   File slidesOutputDir
+  File pdfWorkingDir
   File buildDeckjsDir
 
 
@@ -28,6 +29,7 @@ class CurriculumPlugin
     handoutConfDir = new File(frameworkDir, 'handout')
     deckjsDir = new File(frameworkDir, 'deck.js')
     slidesOutputDir = project.buildDir
+    pdfWorkingDir = new File(project.buildDir, 'screenshots')
     buildDeckjsDir = new File(slidesOutputDir, 'deck.js')
 
     applyTasks(project)
@@ -82,7 +84,7 @@ class CurriculumPlugin
     project.tasks.create('bundle', Zip).configure {
       dependsOn << ['course']
       from project.buildDir
-      exclude "lessc/", "distributions/"
+      exclude "lessc/", "distributions/", "screenshots/"
       description = 'Bundles all course outputs into a distributable ZIP file'
       group = 'Curriculum'
     }
@@ -117,11 +119,18 @@ class CurriculumPlugin
 
   def createAndConfigureSlidesExportTask(project) {
     project.tasks.create('exportSlides', ExportSlidesTask).configure {
+
+      doFirst {
+        this.pdfWorkingDir.mkdirs()
+      }
+
       // QUESTION should we depend on vertexSlides, courseSlides or neither? or can we auto-detect?
       //dependsOn << ['vertexSlides']
       description = 'Exports a screenshot of each slide in the deck to PNG'
       group = 'Curriculum'
-      workingDir = this.slidesOutputDir
+      dependsOn << ['course']
+      workingDir = this.pdfWorkingDir
+      slidesFile = "${slidesOutputDir}/slides.html"
 
       // set configuration that depends on workingDir being set
       // QUESTION is there a way to get this method to run automatically?
@@ -134,7 +143,7 @@ class CurriculumPlugin
 
 
   def createAndConfigureSlidesHandoutTask(project) {
-    project.tasks.create('slidesHandout', AsciidoctorTask).configure {
+    project.tasks.create('pdf', AsciidoctorTask).configure {
       dependsOn << ['exportSlides']
       description = 'Creates a handout for the slide deck that includes both slides and slide notes'
       group = 'Curriculum'
@@ -309,7 +318,7 @@ class CurriculumPlugin
       outputDir project.buildDir
       sourceDir "${project.projectDir}/src"
       sources {
-        include 'slides.adoc'
+        include 'slides*.adoc'
       }
 
       backends 'deckjs'

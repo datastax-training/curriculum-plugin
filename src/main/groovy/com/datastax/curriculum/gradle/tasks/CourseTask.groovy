@@ -15,11 +15,13 @@ class CourseTask extends DefaultTask {
   List<Map> modules
 
   def curriculumRootDir
-  def slidesFile = "${project.projectDir}/src/slides.adoc"
-  def exercisesFile = "${project.projectDir}/src/exercises.adoc"
-  def solutionsFile = "${project.projectDir}/src/solutions.adoc"
+  def srcDir = "${project.projectDir}/src"
+  def slidesFile = "${srcDir}/slides.adoc"
+  def exercisesFile = "${srcDir}/exercises.adoc"
+  def solutionsFile = "${srcDir}/solutions.adoc"
+  def courseIndexFile = "${srcDir}/index.adoc"
   def javaScriptFile = "${project.buildDir}/js/course.js"
-  def courseIndexFile = "${project.projectDir}/src/index.adoc"
+
 
   Map<String, String> slideHeader = [:]
   Map<String, String> exerciseHeader = [:]
@@ -27,27 +29,31 @@ class CourseTask extends DefaultTask {
 
   @TaskAction
   def courseAction() {
-    vertexList = processModules(modules)
     slideHeader.customjs = 'js/course.js'
+    vertexList = writeCourseIndexAsciidoc(modules)
     copyImagesAndResources()
-    writeMasterSlideAsciidoc()
     writeMasterExerciseAsciidoc()
     writeMasterSolutionAsciidoc()
   }
 
 
-  def processModules(List<Map> modules) {
+  def writeCourseIndexAsciidoc(List<Map> modules) {
     def vertexList = []
     project.file(courseIndexFile).withWriter { writer ->
       writer.println "= ${title}"
       writer.println ':backend: html5'
-      modules.each { module ->
+      modules.eachWithIndex { module, index ->
         def name = module.name
         def moduleVertices = project.file(module.vertices).collect().findAll { it }
+        def slideFileName = "slides-${index+1}.adoc"
+        writeSlideAsciidoc("${srcDir}/${slideFileName}", moduleVertices, name)
+
+
         writer.println ''
         writer.println "== ${name}"
+        writeSlideAsciidoc(slidesFile, vertexList, title)
         moduleVertices.each { vertex ->
-          writer.println ". <<slides.adoc#${convertVertexToAnchor(vertex)},${vertex}>>"
+          writer.println ". <<${slideFileName}#${convertVertexToAnchor(vertex)},${vertex}>>"
           vertexList << vertex
         }
       }
@@ -103,7 +109,7 @@ class CourseTask extends DefaultTask {
   }
 
 
-  def writeMasterSlideAsciidoc() {
+  def writeSlideAsciidoc(slidesFile, vertexList, title) {
     project.file(slidesFile).withWriter { writer ->
       writer.println "= ${title}"
       writer.println convertHeaderMapToString(slideHeader)
