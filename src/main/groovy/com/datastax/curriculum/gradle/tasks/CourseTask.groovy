@@ -51,13 +51,13 @@ class CourseTask extends DefaultTask {
 
         writer.println ''
         writer.println "== ${name}"
-        writeSlideAsciidoc(slidesFile, vertexList, title)
         moduleVertices.each { vertex ->
           def vertexName = extractVertexName(vertex)
           writer.println ". <<${slideFileName}#${convertVertexToAnchor(vertex)},${extractVertexName(vertex)}>>"
           vertexList << vertex
         }
       }
+      writeSlideAsciidoc(slidesFile, vertexList, title)
     }
     return vertexList
   }
