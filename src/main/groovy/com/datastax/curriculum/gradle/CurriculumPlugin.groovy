@@ -349,7 +349,12 @@ class CurriculumPlugin
           from "${project.buildDir}/deckjs"
           into project.buildDir
         }
+        project.copy {
+          from "${project.buildDir}/asciidoc/deckjs"
+          into project.buildDir
+        }
         project.delete "${project.buildDir}/deckjs"
+        project.delete "${project.buildDir}/asciidoc"
       }
 
     }
