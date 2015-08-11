@@ -53,12 +53,21 @@ class CourseTask extends DefaultTask {
         writer.println "== ${name}"
         writeSlideAsciidoc(slidesFile, vertexList, title)
         moduleVertices.each { vertex ->
-          writer.println ". <<${slideFileName}#${convertVertexToAnchor(vertex)},${vertex}>>"
+          def vertexName = extractVertexName(vertex)
+          writer.println ". <<${slideFileName}#${convertVertexToAnchor(vertex)},${extractVertexName(vertex)}>>"
           vertexList << vertex
         }
       }
     }
     return vertexList
+  }
+
+
+  def extractVertexName(vertex) {
+    def adocFile = project.file("${curriculumRootDir}/${vertex}/src/slides.adoc")
+    def lines = adocFile.text.split('\n')
+    def titleLine = lines.find { it.startsWith('=') }
+    return titleLine[2..-1]
   }
 
 

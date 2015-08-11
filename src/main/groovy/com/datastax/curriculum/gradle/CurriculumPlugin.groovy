@@ -149,6 +149,7 @@ class CurriculumPlugin
       group = 'Curriculum'
       backends 'pdf'
       sourceDir "${project.projectDir}/src"
+      outputDir project.buildDir
       sources {
         include 'slides.adoc'
       }
@@ -169,7 +170,7 @@ class CurriculumPlugin
                  'pdf-style': 'handout',
                  'pdf-fontsdir': new File(this.handoutConfDir, 'fonts').absolutePath,
                  // screenshotsdir must be absolute!
-                 screenshotsdir: this.slidesOutputDir.absolutePath
+                 screenshotsdir: pdfWorkingDir.absolutePath
       extensions {
         // replaces page breaks (<<<) with anonymous section titles (== !) before parsing structure
         // this version processes attribute entries so attribute references can be used within include directives
@@ -232,6 +233,8 @@ class CurriculumPlugin
           def javaEmbedUtils = Class.forName('org.jruby.javasupport.JavaEmbedUtils')
           def rubyRuntime = doc.delegate().__ruby_object().getRuntime()
           def screenshotsDir = doc.attributes().get('screenshotsdir')
+          println doc.attributes()
+          println screenshotsDir
           def screenshotFormat = new File(screenshotsDir, 'slide-001.png').exists() ? 'png' : 'jpg'
 
           def createSlideImageBlock = { parent, slideNumber ->
