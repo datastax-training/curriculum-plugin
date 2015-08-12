@@ -18,7 +18,7 @@ plugins {
 
 apply plugin: "com.gradle.plugin-publish"
 
-def versionNumber = '0.1.7-SNAPSHOT'
+def versionNumber = '0.1.7'
 
 pluginBundle {
   website = 'http://www.github.com/datastax-training'
