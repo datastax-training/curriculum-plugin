@@ -22,7 +22,6 @@ class CourseTask extends DefaultTask {
   def courseIndexFile = "${srcDir}/index.adoc"
   def javaScriptFile = "${project.buildDir}/js/course.js"
 
-
   Map<String, String> slideHeader = [:]
   Map<String, String> exerciseHeader = [:]
 
@@ -32,6 +31,7 @@ class CourseTask extends DefaultTask {
     slideHeader.customjs = 'js/course.js'
     vertexList = writeCourseIndexAsciidoc(modules)
     copyImagesAndResources()
+    writeSlideAsciidoc(slidesFile, vertexList, title)
     writeMasterExerciseAsciidoc()
     writeMasterSolutionAsciidoc()
   }
@@ -48,7 +48,6 @@ class CourseTask extends DefaultTask {
         def slideFileName = "slides-${index+1}.adoc"
         writeSlideAsciidoc("${srcDir}/${slideFileName}", moduleVertices, name)
 
-
         writer.println ''
         writer.println "== ${name}"
         moduleVertices.each { vertex ->
@@ -57,7 +56,6 @@ class CourseTask extends DefaultTask {
           vertexList << vertex
         }
       }
-      writeSlideAsciidoc(slidesFile, vertexList, title)
     }
     return vertexList
   }
