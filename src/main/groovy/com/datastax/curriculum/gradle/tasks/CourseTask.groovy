@@ -8,14 +8,18 @@ import org.gradle.api.tasks.TaskAction
 class CourseTask extends DefaultTask {
 
   String title
+  String baseURL = 'slides.html'
 
   def vertexFile
-  List<String> vertexList
+  List<String> vertexList = []
+  List<Map> modules
 
   def curriculumRootDir
-  def slidesFile = "${project.projectDir}/src/slides.adoc"
-  def exercisesFile = "${project.projectDir}/src/exercises.adoc"
-  def solutionsFile = "${project.projectDir}/src/solutions.adoc"
+  def srcDir = "${project.projectDir}/src"
+  def slidesFile = "${srcDir}/slides.adoc"
+  def exercisesFile = "${srcDir}/exercises.adoc"
+  def solutionsFile = "${srcDir}/solutions.adoc"
+  def courseIndexFile = "${srcDir}/index.adoc"
   def javaScriptFile = "${project.buildDir}/js/course.js"
 
   Map<String, String> slideHeader = [:]
@@ -24,12 +28,44 @@ class CourseTask extends DefaultTask {
 
   @TaskAction
   def courseAction() {
-    vertexList = project.file(vertexFile).collect().findAll { it }
-    slideHeader.customjs = '../../js/course.js'
+    slideHeader.customjs = 'js/course.js'
+    vertexList = writeCourseIndexAsciidoc(modules)
     copyImagesAndResources()
-    writeMasterSlideAsciidoc()
+    writeSlideAsciidoc(slidesFile, vertexList, title)
     writeMasterExerciseAsciidoc()
     writeMasterSolutionAsciidoc()
+  }
+
+
+  def writeCourseIndexAsciidoc(List<Map> modules) {
+    def vertexList = []
+    project.file(courseIndexFile).withWriter { writer ->
+      writer.println "= ${title}"
+      writer.println ':backend: html5'
+      modules.eachWithIndex { module, index ->
+        def name = module.name
+        def moduleVertices = project.file(module.vertices).collect().findAll { it }
+        def slideFileName = "slides-${index+1}.adoc"
+        writeSlideAsciidoc("${srcDir}/${slideFileName}", moduleVertices, name)
+
+        writer.println ''
+        writer.println "== ${name}"
+        moduleVertices.each { vertex ->
+          def vertexName = extractVertexName(vertex)
+          writer.println ". <<${slideFileName}#${convertVertexToAnchor(vertex)},${extractVertexName(vertex)}>>"
+          vertexList << vertex
+        }
+      }
+    }
+    return vertexList
+  }
+
+
+  def extractVertexName(vertex) {
+    def adocFile = project.file("${curriculumRootDir}/${vertex}/src/slides.adoc")
+    def lines = adocFile.text.split('\n')
+    def titleLine = lines.find { it.startsWith('=') }
+    return titleLine[2..-1]
   }
 
 
@@ -52,7 +88,7 @@ class CourseTask extends DefaultTask {
           include '**/*.js'
         }
         into("${tempDir}/${vertex}/js")
-        expand(['image_path': "../../images/${vertex}"])
+        expand(['image_path': "images/${vertex}"])
       }
     }
 
@@ -80,14 +116,15 @@ class CourseTask extends DefaultTask {
   }
 
 
-  def writeMasterSlideAsciidoc() {
+  def writeSlideAsciidoc(slidesFile, vertexList, title) {
     project.file(slidesFile).withWriter { writer ->
       writer.println "= ${title}"
       writer.println convertHeaderMapToString(slideHeader)
       writer.println ''
       vertexList.each { vertex ->
         writer.println ":slide_path: slides"
-        writer.println ":image_path: ../../images/${vertex}"
+        writer.println ":image_path: images/${vertex}"
+        writer.println "[[${convertVertexToAnchor(vertex)}]]"
         writer.println "include::${curriculumRootDir}/${vertex}/src/includes.adoc[]"
         writer.println ''
       }
@@ -107,7 +144,7 @@ class CourseTask extends DefaultTask {
         def vertexExercisesFile = "${curriculumRootDir}/${vertex}/src/exercises.adoc"
         if(project.file(vertexExercisesFile).exists()) {
           writer.println ":exercise_number: ${exerciseNumber}"
-          writer.println ":image_path: ../../images/${vertex}"
+          writer.println ":image_path: images/${vertex}"
           writer.println "[[EXERCISE-${exerciseNumber}]]"
           writer.println "include::${curriculumRootDir}/${vertex}/src/exercises.adoc[]"
           writer.println ''
@@ -130,7 +167,7 @@ class CourseTask extends DefaultTask {
         def vertexSolutionsFile = "${curriculumRootDir}/${vertex}/src/solutions.adoc"
         if(project.file(vertexSolutionsFile).exists()) {
           writer.println ":exercise_number: ${exerciseNumber++}"
-          writer.println ":image_path: ../../images/${vertex}"
+          writer.println ":image_path: images/${vertex}"
           writer.println "include::${curriculumRootDir}/${vertex}/src/solutions.adoc[]"
           writer.println ''
         }
@@ -142,5 +179,10 @@ class CourseTask extends DefaultTask {
 
   def convertHeaderMapToString(header) {
     header.collect { key, value -> ":${key}: ${value}" }.join('\n')
+  }
+
+
+  def convertVertexToAnchor(vertex) {
+    vertex.replace('/', '-')
   }
 }

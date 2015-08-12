@@ -5,8 +5,6 @@ import com.datastax.curriculum.gradle.tasks.SlidesTask
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 import org.asciidoctor.gradle.AsciidoctorTask
-import org.gradle.api.tasks.Delete
-import org.gradle.api.tasks.JavaExec
 import org.gradle.api.tasks.bundling.Zip
 
 class CurriculumPlugin
@@ -17,6 +15,7 @@ class CurriculumPlugin
   File handoutConfDir
   File deckjsDir
   File slidesOutputDir
+  File pdfWorkingDir
   File buildDeckjsDir
 
 
@@ -29,7 +28,8 @@ class CurriculumPlugin
     templateDir = new File(frameworkDir, 'asciidoctor-backends')
     handoutConfDir = new File(frameworkDir, 'handout')
     deckjsDir = new File(frameworkDir, 'deck.js')
-    slidesOutputDir = new File(project.buildDir, 'asciidoc/deckjs')
+    slidesOutputDir = project.buildDir
+    pdfWorkingDir = new File(project.buildDir, 'screenshots')
     buildDeckjsDir = new File(slidesOutputDir, 'deck.js')
 
     applyTasks(project)
@@ -84,7 +84,7 @@ class CurriculumPlugin
     project.tasks.create('bundle', Zip).configure {
       dependsOn << ['course']
       from project.buildDir
-      exclude "lessc/", "distributions/"
+      exclude "lessc/", "distributions/", "screenshots/"
       description = 'Bundles all course outputs into a distributable ZIP file'
       group = 'Curriculum'
     }
@@ -119,11 +119,18 @@ class CurriculumPlugin
 
   def createAndConfigureSlidesExportTask(project) {
     project.tasks.create('exportSlides', ExportSlidesTask).configure {
+
+      doFirst {
+        this.pdfWorkingDir.mkdirs()
+      }
+
       // QUESTION should we depend on vertexSlides, courseSlides or neither? or can we auto-detect?
       //dependsOn << ['vertexSlides']
       description = 'Exports a screenshot of each slide in the deck to PNG'
       group = 'Curriculum'
-      workingDir = this.slidesOutputDir
+      dependsOn << ['course']
+      workingDir = this.pdfWorkingDir
+      slidesFile = "${slidesOutputDir}/slides.html"
 
       // set configuration that depends on workingDir being set
       // QUESTION is there a way to get this method to run automatically?
@@ -136,12 +143,13 @@ class CurriculumPlugin
 
 
   def createAndConfigureSlidesHandoutTask(project) {
-    project.tasks.create('slidesHandout', AsciidoctorTask).configure {
+    project.tasks.create('pdf', AsciidoctorTask).configure {
       dependsOn << ['exportSlides']
       description = 'Creates a handout for the slide deck that includes both slides and slide notes'
       group = 'Curriculum'
       backends 'pdf'
       sourceDir "${project.projectDir}/src"
+      outputDir project.buildDir
       sources {
         include 'slides.adoc'
       }
@@ -162,7 +170,7 @@ class CurriculumPlugin
                  'pdf-style': 'handout',
                  'pdf-fontsdir': new File(this.handoutConfDir, 'fonts').absolutePath,
                  // screenshotsdir must be absolute!
-                 screenshotsdir: this.slidesOutputDir.absolutePath
+                 screenshotsdir: pdfWorkingDir.absolutePath
       extensions {
         // replaces page breaks (<<<) with anonymous section titles (== !) before parsing structure
         // this version processes attribute entries so attribute references can be used within include directives
@@ -225,6 +233,8 @@ class CurriculumPlugin
           def javaEmbedUtils = Class.forName('org.jruby.javasupport.JavaEmbedUtils')
           def rubyRuntime = doc.delegate().__ruby_object().getRuntime()
           def screenshotsDir = doc.attributes().get('screenshotsdir')
+          println doc.attributes()
+          println screenshotsDir
           def screenshotFormat = new File(screenshotsDir, 'slide-001.png').exists() ? 'png' : 'jpg'
 
           def createSlideImageBlock = { parent, slideNumber ->
@@ -304,9 +314,14 @@ class CurriculumPlugin
       frameworkDir = this.frameworkDir
       buildDeckjsDir = this.buildDeckjsDir
 
+      dependsOn << ['lessc']
+      description = 'Builds the deck.js presentation slides only'
+      group = 'Curriculum'
+
+      outputDir project.buildDir
       sourceDir "${project.projectDir}/src"
       sources {
-        include 'slides.adoc'
+        include 'slides*.adoc'
       }
 
       backends 'deckjs'
@@ -328,15 +343,31 @@ class CurriculumPlugin
         }
       }
 
-      dependsOn << ['lessc']
-      description = 'Builds the deck.js presentation slides only'
-      group = 'Curriculum'
+      // Necessary to clean up bundling of course materials
+      doLast {
+        project.copy {
+          from "${project.buildDir}/deckjs"
+          into project.buildDir
+        }
+        project.copy {
+          from "${project.buildDir}/asciidoc/deckjs"
+          into project.buildDir
+        }
+        project.delete "${project.buildDir}/deckjs"
+        project.delete "${project.buildDir}/asciidoc"
+      }
+
     }
   }
 
 
   def configureDocsTask(task) {
     task.configure {
+      dependsOn << 'lessc'
+      description = 'Builds documents that support the slides'
+      group = 'Curriculum'
+
+      outputDir project.buildDir
       sourceDir "${project.projectDir}/src"
       sources {
         exclude 'slides.adoc'
@@ -362,9 +393,14 @@ class CurriculumPlugin
               stylesheet: 'styles.css',
               stylesdir: project.file("${frameworkDir}/asciidoctor-backends/haml/html5/css")
 
-      dependsOn << 'lessc'
-      description = 'Builds documents that support the slides'
-      group = 'Curriculum'
+      // Necessary to clean up bundling of course materials
+      doLast {
+        project.copy {
+          from "${project.buildDir}/html5"
+          into project.buildDir
+        }
+        project.delete "${project.buildDir}/html5"
+      }
     }
   }
 

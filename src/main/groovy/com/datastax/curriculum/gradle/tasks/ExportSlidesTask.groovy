@@ -24,8 +24,15 @@ class ExportSlidesTask extends JavaExec {
   @Input
   String profile = 'deck2pdf/deckjs-handout'
 
+  @Input
+  def slidesFile
+
   ExportSlidesTask() {
-    main = 'me.champeau.deck2pdf.Main'
+
+    // setMain('') instead of main = ''
+    // This works around an odd intermittent exception where Groovy complains about
+    // the right-side argument being a String. Don't ask me.
+    setMain('me.champeau.deck2pdf.Main')
     configureDependencies()
     configureClasspath()
   }
@@ -61,8 +68,8 @@ class ExportSlidesTask extends JavaExec {
   }
 
   void configureIO() {
-    this.inputs.file("$workingDir/slides.html")
-    this.outputs.files("$workingDir/slide-001.jpg", "$workingDir/slide-001.png")
+    this.inputs.file(slidesFile)
+    this.outputs.files("{workingDir}/slide-001.jpg", "$workingDir/slide-001.png")
   }
 
   void computeArgs() {
@@ -71,7 +78,7 @@ class ExportSlidesTask extends JavaExec {
       "--width=$width",
       "--height=$height",
       "--quality=$quality",
-      'slides.html',
+      project.file(slidesFile),
       "slide-%03d.$format"
     ]
   }
