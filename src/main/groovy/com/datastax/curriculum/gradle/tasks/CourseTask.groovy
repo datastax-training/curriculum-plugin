@@ -17,9 +17,9 @@ class CourseTask extends DefaultTask {
   def curriculumRootDir
   def srcDir = "${project.projectDir}/src"
   def slidesFile = "${srcDir}/slides.adoc"
-  def exercisesFile = "${srcDir}/exercises.adoc"
+  def exercisesFile = "${srcDir}/exercise-list.adoc"
   def solutionsFile = "${srcDir}/solutions.adoc"
-  def courseIndexFile = "${srcDir}/index.adoc"
+  def courseModuleFile = "${srcDir}/module-list.adoc"
   def javaScriptFile = "${project.buildDir}/js/course.js"
 
   Map<String, String> slideHeader = [:]
@@ -29,7 +29,7 @@ class CourseTask extends DefaultTask {
   @TaskAction
   def courseAction() {
     slideHeader.customjs = 'js/course.js'
-    vertexList = writeCourseIndexAsciidoc(modules)
+    vertexList = writeCourseModuleAsciidoc(modules)
     copyImagesAndResources()
     writeSlideAsciidoc(slidesFile, vertexList, title)
     writeMasterExerciseAsciidoc()
@@ -37,11 +37,9 @@ class CourseTask extends DefaultTask {
   }
 
 
-  def writeCourseIndexAsciidoc(List<Map> modules) {
+  def writeCourseModuleAsciidoc(List<Map> modules) {
     def vertexList = []
-    project.file(courseIndexFile).withWriter { writer ->
-      writer.println "= ${title}"
-      writer.println ':backend: html5'
+    project.file(courseModuleFile).withWriter { writer ->
       modules.eachWithIndex { module, index ->
         def name = module.name
         def moduleVertices = project.file(module.vertices).collect().findAll { it }
@@ -49,7 +47,7 @@ class CourseTask extends DefaultTask {
         writeSlideAsciidoc("${srcDir}/${slideFileName}", moduleVertices, name)
 
         writer.println ''
-        writer.println "== ${name}"
+        writer.println "=== ${name}"
         moduleVertices.each { vertex ->
           def vertexName = extractVertexName(vertex)
           writer.println ". <<${slideFileName}#${convertVertexToAnchor(vertex)},${extractVertexName(vertex)}>>"
@@ -137,9 +135,6 @@ class CourseTask extends DefaultTask {
     int exerciseNumber = 1
     def exercisesFile = project.file(exercisesFile)
     exercisesFile.withWriter { writer ->
-      writer.println "= ${title}"
-      writer.println convertHeaderMapToString(exerciseHeader)
-      writer.println ''
       vertexList.each { vertex ->
         def vertexExercisesFile = "${curriculumRootDir}/${vertex}/src/exercises.adoc"
         if(project.file(vertexExercisesFile).exists()) {
