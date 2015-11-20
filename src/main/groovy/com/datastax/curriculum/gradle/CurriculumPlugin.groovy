@@ -23,6 +23,7 @@ class CurriculumPlugin
   void apply(Project project) {
     project.plugins.apply('org.asciidoctor.convert')
     project.plugins.apply('lesscss')
+    project.plugins.apply('jetty')
 
     curriculumRootDir = findProjectRoot(project)
     frameworkDir = new File(curriculumRootDir, 'framework')
