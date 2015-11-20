@@ -5,6 +5,7 @@ import com.datastax.curriculum.gradle.tasks.SlidesTask
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 import org.asciidoctor.gradle.AsciidoctorTask
+import org.gradle.api.plugins.jetty.JettyRun
 import org.gradle.api.tasks.bundling.Zip
 
 class CurriculumPlugin
@@ -44,6 +45,7 @@ class CurriculumPlugin
     createAndConfigureVertexTask(project)
     createAndConfigureSlidesExportTask(project)
     createAndConfigureSlidesHandoutTask(project)
+    createAndConfigureServerTask(project)
   }
 
 
@@ -400,6 +402,33 @@ class CurriculumPlugin
           into project.buildDir
         }
         project.delete "${project.buildDir}/html5"
+      }
+    }
+  }
+
+
+  def createAndConfigureServerTask(project) {
+    def webXmlFile = project.file("${project.buildDir}/tmp/web.xml")
+    project.tasks.create('server', JettyRun).configure {
+      webAppSourceDirectory = project.buildDir
+      contextPath = '/'
+      webXml = webXmlFile
+      doFirst {
+        project.file("${project.buildDir}/tmp").mkdir()
+        webXmlFile.withWriter { writer ->
+          writer.println """\
+<web-app>
+  <servlet>
+    <servlet-name>default</servlet-name>
+    <servlet-class>org.mortbay.jetty.servlet.DefaultServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+</web-app>
+"""
+        }
       }
     }
   }
