@@ -24,6 +24,7 @@ class CurriculumPlugin
     project.plugins.apply('org.asciidoctor.convert')
     project.plugins.apply('lesscss')
     project.plugins.apply('jetty')
+    project.plugins.apply('com.bluepapa32.watch')
 
     curriculumRootDir = findProjectRoot(project)
     frameworkDir = new File(curriculumRootDir, 'framework')
@@ -47,6 +48,7 @@ class CurriculumPlugin
     createAndConfigureSlidesExportTask(project)
     createAndConfigureSlidesHandoutTask(project)
     createAndConfigureServerTask(project)
+    createAndConfigureWatchTask(project)
   }
 
 
@@ -140,7 +142,7 @@ class CurriculumPlugin
       postConfigure()
 
       // Disable hardware acceleration due to Oracle JVM 8u51 bug on OSX
-      jvmArgs = ['-Dprism.order=sw']
+      jvmArgs = ['-Dprism.order=sw', '-Dprism.verbose=true', '-Xmx4g']
     }
   }
 
@@ -348,6 +350,12 @@ class CurriculumPlugin
 
       // Necessary to clean up bundling of course materials
       doLast {
+//        project.copy {
+//          from(frameworkDir) {
+//            include 'deck.js/**'
+//          }
+//          into project.buildDir
+//        }
         project.copy {
           from "${project.buildDir}/deckjs"
           into project.buildDir
@@ -408,9 +416,28 @@ class CurriculumPlugin
   }
 
 
+  def createAndConfigureOutlineTask(project) {
+    project.tasks.create('outlinePdf', AsciidoctorTask) {
+      description = 'Creates a PDF of the course outline'
+      group = 'Curriculum'
+
+      outputDir project.buildDir
+      sourceDir "${project.projectDir}/src"
+      sources {
+        include 'outline.adoc'
+      }
+
+      backends 'pdf'
+
+    }
+  }
+
+
   def createAndConfigureServerTask(project) {
     def webXmlFile = project.file("${project.buildDir}/tmp/web.xml")
     project.tasks.create('server', JettyRun).configure {
+      description = 'Runs a local web server on port 8080'
+      group = 'Curriculum'
       webAppSourceDirectory = project.buildDir
       contextPath = '/'
       webXml = webXmlFile
@@ -430,6 +457,16 @@ class CurriculumPlugin
 </web-app>
 """
         }
+      }
+    }
+  }
+
+
+  def createAndConfigureWatchTask(project) {
+    project.watch.configure {
+      vertex {
+        files project.tasks.findByName('vertexSlides').inputs.sourceFiles
+        tasks 'vertex'
       }
     }
   }

@@ -18,7 +18,7 @@ plugins {
 
 apply plugin: "com.gradle.plugin-publish"
 
-def versionNumber = '0.1.8'
+def versionNumber = '0.1.9-SNAPSHOT'
 
 pluginBundle {
   website = 'http://www.github.com/datastax-training'
@@ -49,9 +49,10 @@ dependencies {
   compile 'org.codehaus.groovy:groovy-all:2.3.10'
   compile gradleApi()
   compile 'com.github.houbie:lesscss-gradle-plugin:1.0.3-less-1.7.0'
-  compile 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.2'
+  compile 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
   runtime 'org.asciidoctor:asciidoctorj-groovy-dsl:1.0.0.preview2'
   runtime 'org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.8'
+  runtime 'com.bluepapa32:gradle-watch-plugin:0.1.5'
 }
 
 
