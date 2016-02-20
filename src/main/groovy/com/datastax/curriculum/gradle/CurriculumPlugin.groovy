@@ -49,6 +49,7 @@ class CurriculumPlugin
     createAndConfigureSlidesHandoutTask(project)
     createAndConfigureServerTask(project)
     createAndConfigureWatchTask(project)
+    createAndConfigureOutlineTask(project)
   }
 
 
@@ -464,6 +465,8 @@ class CurriculumPlugin
 
   def createAndConfigureWatchTask(project) {
     project.watch.configure {
+      group = 'Curriculum'
+      description = 'Watch a vertex and run the vertexSlides task when it changes'
       vertex {
         files project.tasks.findByName('vertexSlides').inputs.sourceFiles
         tasks 'vertex'
