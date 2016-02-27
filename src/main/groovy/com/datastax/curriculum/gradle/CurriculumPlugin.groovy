@@ -7,6 +7,7 @@ import org.gradle.api.Plugin
 import org.asciidoctor.gradle.AsciidoctorTask
 import org.gradle.api.plugins.jetty.JettyRun
 import org.gradle.api.tasks.bundling.Zip
+import com.bluepapa32.gradle.plugins.watch.WatchTarget
 
 class CurriculumPlugin
   implements Plugin<Project> {
@@ -48,8 +49,8 @@ class CurriculumPlugin
     createAndConfigureSlidesExportTask(project)
     createAndConfigureSlidesHandoutTask(project)
     createAndConfigureServerTask(project)
-    createAndConfigureWatchTask(project)
     createAndConfigureOutlineTask(project)
+    configureWatchTask(project)
   }
 
 
@@ -328,6 +329,7 @@ class CurriculumPlugin
       sourceDir "${project.projectDir}/src"
       sources {
         include 'slides*.adoc'
+        include 'slides/**/*.adoc'
       }
 
       backends 'deckjs'
@@ -463,15 +465,20 @@ class CurriculumPlugin
   }
 
 
-  def createAndConfigureWatchTask(project) {
-    project.watch.configure {
+  def configureWatchTask(project) {
+    def watchTask = project.tasks.getByName('watch')
+    watchTask.configure {
       group = 'Curriculum'
       description = 'Watch a vertex and run the vertexSlides task when it changes'
-      vertex {
-        files project.tasks.findByName('vertexSlides').inputs.sourceFiles
-        tasks 'vertex'
-      }
     }
+    WatchTarget vertexTarget = new WatchTarget('vertex');
+    vertexTarget.files(project.tasks.vertexSlides.inputs.sourceFiles)
+    vertexTarget.tasks('vertex')
+    watchTask.targets << vertexTarget
+
+
+    println project.tasks.vertexSlides
+    project.tasks.vertexSlides.inputs.sourceFiles.files.each { println it }
   }
 
 
