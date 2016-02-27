@@ -329,7 +329,6 @@ class CurriculumPlugin
       sourceDir "${project.projectDir}/src"
       sources {
         include 'slides*.adoc'
-        include 'slides/**/*.adoc'
       }
 
       backends 'deckjs'
@@ -353,12 +352,6 @@ class CurriculumPlugin
 
       // Necessary to clean up bundling of course materials
       doLast {
-//        project.copy {
-//          from(frameworkDir) {
-//            include 'deck.js/**'
-//          }
-//          into project.buildDir
-//        }
         project.copy {
           from "${project.buildDir}/deckjs"
           into project.buildDir
@@ -472,13 +465,9 @@ class CurriculumPlugin
       description = 'Watch a vertex and run the vertexSlides task when it changes'
     }
     WatchTarget vertexTarget = new WatchTarget('vertex');
-    vertexTarget.files(project.tasks.vertexSlides.inputs.sourceFiles)
+    vertexTarget.files(project.tasks.vertexSlides.inputs.files)
     vertexTarget.tasks('vertex')
     watchTask.targets << vertexTarget
-
-
-    println project.tasks.vertexSlides
-    project.tasks.vertexSlides.inputs.sourceFiles.files.each { println it }
   }
 
 
