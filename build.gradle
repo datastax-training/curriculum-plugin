@@ -53,6 +53,7 @@ dependencies {
   compile 'com.bluepapa32:gradle-watch-plugin:0.1.5'
   runtime 'org.asciidoctor:asciidoctorj-groovy-dsl:1.0.0.preview2'
   runtime 'org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.8'
+  testCompile 'junit:junit:4.12'
 }
 
 
