@@ -2,6 +2,7 @@
 package com.datastax.curriculum.gradle
 
 import com.datastax.curriculum.gradle.tasks.SlidesTask
+import com.datastax.curriculum.gradle.tasks.course.CourseTask
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 import org.asciidoctor.gradle.AsciidoctorTask
@@ -468,6 +469,11 @@ class CurriculumPlugin
     vertexTarget.files(project.tasks.vertexSlides.inputs.files)
     vertexTarget.tasks('vertex')
     watchTask.targets << vertexTarget
+
+    WatchTarget courseTarget = new WatchTarget('course');
+    vertexTarget.files(project.tasks.courseSlides.inputs.files)
+    vertexTarget.tasks('course')
+    watchTask.targets << courseTarget
   }
 
 
