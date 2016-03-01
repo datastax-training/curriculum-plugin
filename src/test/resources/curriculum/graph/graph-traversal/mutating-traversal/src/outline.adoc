@@ -1,0 +1,14 @@
+== Mutating Traversal
+
+=== Outline
+
+* Mutating Traversal Definition
+* Mutating Traversal Steps
+* Step Modulators _from_ and _to_
+* The _KillrVideo_ Graph Schema
+* Mutating Traversal with _property_
+* Mutating Traversal with _addV_ and _property_
+* Mutating Traversal with _addV_, _addE_, and _property_
+* Mutating Traversal with _addE_
+* Mutating Traversal with _addE_ and _drop_
+* Mutating and Declarative Traversal

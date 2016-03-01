@@ -1,0 +1,158 @@
+
+== What is a Property Graph?
+
+*Directed, binary, attributed multi-graph*
+
+* Vertices
+* Edges
+* Properties
+
+[.notes]
+--
+Mathematically, we can define a property graph as a directed, binary, attributed multi-graph.
+It consists of a set of vertices, a multi-set of directed, binary edges, and key-value pairs
+or properties associated with vertices and edges.
+--
+
+
+== Vertices
+
+*Vertex id and label*
+
+image::{image_path}/vertex.svg[float="center"]
+
+[.notes]
+--
+Each vertex in a property graph has a unique id that is either assigned automatically by DSE Graph
+or is a custom id specified by a graph creator. Each vertex also has a label that
+generally denotes a type of an entity that a vertex represents.
+
+In this illustration, we have 7 vertices with labels _movie_, _person_, _user_, and _genre_.
+All of the vertices have unique ids, such as _m267_ or _p4361_. It is convenient for us to think of ids as
+simple strings in this example but, in reality, vertex ids in DSE Graph are composed of multiple components used not only for
+uniqueness but also for graph partitioning. We will revisit ids again when we talk about custom ids.
+--
+
+
+== Edges
+
+*Edge direction and label*
+
+image::{image_path}/edge.svg[float="center"]
+
+[.notes]
+--
+Each (binary) edge connects exactly two vertices. Edges are always directed, have automatically assigned unique
+identifiers and have labels. Since a property graph is a multi-graph, it is possible to have
+multiple edges connecting the same two vertices; such parallel edges may have the same direction and labels but will
+have different ids.
+
+In this illustration, we connected our vertices with labeled edges. Edges and their labels usually
+denote relationships between entities represented by vertices. It is getting more interesting!
+We can now read that _some user u185 rated movie m267 that has some actor p4361_.
+--
+
+
+== Properties
+
+*Vertex and edge properties*
+
+image::{image_path}/property.svg[float="center"]
+
+[.notes]
+--
+Properties are key/value pairs that can be associated with any vertex or edge in a property graph.
+They describe individual vertices (entities) and edges (relashionships).
+
+Our sample graph now contains a lot of useful information. Read it.
+
+Note that ids denoted by _movieId_, _userId_, _personId_, and _genreId_ are really the properties
+that we decided to create for our vertices. They are different from vertex ids shown inside of circles. We will
+rely on property ids rather than vertex ids in many of our examples to distinguish vertices.
+--
+
+== Multi-Properties
+
+*Vertex properties with multiple values*
+
+image::{image_path}/multi-property.svg[float="center"]
+
+[.notes]
+--
+A vertex property that can have multiple values is called _multi-property_.
+
+In this example, we have _production_ and _budget_ as multi-properties and show their values in square
+brackets. Another way to think about them is having multiple key-value pairs with the same key
+(e.g., _budget: $150M_ and _budget: $200M_).
+
+Note that multi-properties are only applicable to vertices and not to edges.
+--
+
+
+== Meta-Properties
+
+*Properties describing vertex properties*
+
+image::{image_path}/meta-property.svg[float="center"]
+
+[.notes]
+--
+A property that can be assigned to a vertex property is called _meta-property_. Meta-properties
+are usually used for describing access control, provenance and audit information for individual
+vertex properties.
+
+In this example, we have meta-properties describing provenance of two movie budget estimates, as well as
+meta-properties describing access control permissions for the person properties.
+
+Note that meta-properties are only applicable to vertex properties and not to edge properties.
+A meta-property cannot be a multi-property or have meta-properties assigned to it.
+--
+
+
+== Final Property Graph
+
+image::{image_path}/graph.svg[float="center"]
+
+[.notes]
+--
+Here is our final graph example with all the discussed components.
+Not too simple, not too difficult.
+Any questions?
+--
+
+
+
+== Useful Terminology Review
+
+[role="right"]
+image::{image_path}/terminology.svg[float="right"]
+
+[role="left"]
+--
+* Subgraph
+* Incident edge
+* Incoming and outgoing edges
+* Adjacent vertex
+* Simple, cyclic, and shortest paths
+* Vertex degree, in-degree, and out-degree
+--
+
+[.notes]
+--
+Here are some graph theory terms that you should be comfortable with:
+
+* Subgraph: A subgraph _S_ of a graph _G_ is a graph whose vertices are a subset of the vertex set of _G_, and whose edges are a subset of the edge set of _G_.
+* Incident edge: An edge is called incident to a vertex when this vertex is one of the edge endpoints.
+* Incoming and outgoing edges: An edge directed in or out of a vertex.
+* Adjacent vertex: A vertex _a_ is called adjacent to a vertex _v_ when there exists an edge between the two vertices.
+* Path: A sequence of alternating vertices and edges, beginning and ending with vertices, where each edge's endpoints are the preceding and following vertices in the sequence.
+* Simple, cyclic, and shortest paths: simple - cannot repeat an edge/vertex; cyclic - repetition and
+therefore cycles are ok; shortest length path - a path with the least number of edges.
+* Vertex degree, in-degree, and out-degree: a number of incident, incident incoming, and incident outgoing edges; degree = in-degree + out-degree.
+
+The illustration shows a subgraph of the original graph we saw previously with 5 vertices and 4 edges.
+Vertex _m267_ has 4 incident edges (1 incoming and 3 outgoing) and 4 adjacent vertices. Only simple
+paths exist in this subgraph.
+
+This is only to get us started! There will be a plenty of new notions introduced gradually.
+--

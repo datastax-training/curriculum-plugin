@@ -1,0 +1,5 @@
+plugins {
+  id 'com.datastax.gradle.curriculum.plugin' version '0.1.8'
+}
+
+apply plugin: 'com.datastax.gradle.curriculum.plugin'

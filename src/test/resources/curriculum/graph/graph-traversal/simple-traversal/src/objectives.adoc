@@ -1,0 +1,6 @@
+== Simple Traversal
+
+=== Learning Objectives
+
+* You will become familiar with vertex steps
+* You will be able to define simple traversals

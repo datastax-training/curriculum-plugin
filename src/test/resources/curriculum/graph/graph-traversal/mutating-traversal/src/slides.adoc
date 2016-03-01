@@ -1,0 +1,15 @@
+= Mutating Traversal
+DataStax Training
+:backend: deckjs
+:deckjs_theme: datastax
+:deckjs_transition: fade
+:navigation:
+:status:
+:notes:
+:split:
+:icons: font
+
+
+:slide_path: slides
+:image_path: images
+include::includes.adoc[]

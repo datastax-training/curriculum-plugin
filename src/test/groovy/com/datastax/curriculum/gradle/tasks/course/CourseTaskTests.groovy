@@ -13,7 +13,7 @@ class CourseTaskTests {
   void setupModules() {
     modules = [
       [name: 'Introduction', vertices: 'modules/introduction.txt'],
-      [name: 'Traverals', vertices: 'modules/traversals.txt']
+      [name: 'Traversals', vertices: 'modules/traversals.txt']
     ]
     courseTask = new CourseTask()
   }
@@ -21,6 +21,7 @@ class CourseTaskTests {
 
   @Test
   void testVertexList() {
-    assertTrue(true)
+    def vertexList = buildVertexList(modules)
+    assertEquals(vertexList.size(), )
   }
 }

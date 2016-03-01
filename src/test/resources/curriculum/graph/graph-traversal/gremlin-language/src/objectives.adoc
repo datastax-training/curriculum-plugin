@@ -1,0 +1,6 @@
+== The Gremlin Graph Traversal Language
+
+=== Learning Objectives
+
+* You will be able to understand Gremlin basics
+* You will be able to use Gremlin for simple traversals

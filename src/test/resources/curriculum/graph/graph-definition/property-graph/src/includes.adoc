@@ -1,0 +1,3 @@
+include::{slide_path}/challenge.adoc[]
+include::{slide_path}/knowledge.adoc[]
+include::{slide_path}/solution.adoc[]
