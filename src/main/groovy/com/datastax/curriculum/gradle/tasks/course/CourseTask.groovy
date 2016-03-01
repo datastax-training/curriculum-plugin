@@ -38,7 +38,7 @@ class CourseTask extends DefaultTask {
   @TaskAction
   def courseAction() {
     slideHeader.customjs = 'js/course.js'
-    vertexList = writeCourseModuleAsciidoc(modules)
+    vertexList = buildVertexList(modules)
 
     builders.each { it.build() }
 
@@ -46,7 +46,7 @@ class CourseTask extends DefaultTask {
   }
 
 
-  def buildVertexList() {
+  def buildVertexList(modules) {
     def vertexList = []
     modules.eachWithIndex { module, index ->
       def name = module.name
