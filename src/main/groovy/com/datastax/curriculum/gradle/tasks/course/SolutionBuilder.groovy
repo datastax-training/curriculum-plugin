@@ -5,7 +5,11 @@ import org.gradle.api.Project
 class SolutionBuilder {
   CourseTask courseTask
 
-  
+  SolutionBuilder(CourseTask courseTask) {
+    this.courseTask = courseTask
+  }
+
+
   def build() {
     def project = courseTask.project
     def solutionsFile = courseTask.solutionsFile
@@ -17,15 +21,21 @@ class SolutionBuilder {
     exercisesFile.withWriter { writer ->
       writer.println ''
       vertexList.each { vertex ->
-        def vertexSolutionsFile = "${curriculumRootDir}/${vertex}/src/solutions.adoc"
         if(project.file(courseTask.vertexSolutionsFile).exists()) {
-          writer.println ":exercise_number: ${exerciseNumber++}"
-          writer.println ":image_path: images/${vertex}"
-          writer.println "include::${curriculumRootDir}/${vertex}/src/solutions.adoc[]"
-          writer.println ''
+          writer.println solutionEntry(vertex, curriculumRootDir, exerciseNumber++)
         }
       }
       writer.flush()
     }
+  }
+
+
+  def solutionEntry(vertex, curriculumRootDir, exerciseNumber) {
+    """\
+:exercise_number: ${exerciseNumber}
+:image_path: images/${vertex}
+include::${curriculumRootDir}/${vertex}/src/solutions.adoc[]
+
+"""
   }
 }

@@ -29,7 +29,7 @@ class CourseTask extends DefaultTask {
 
 
   CourseTask() {
-    builders << new SolutionBuilder(courseTask: this)
+    builders << new SolutionBuilder(this)
     builders << new ModuleBuilder(courseTask: this)
     builders << new ExerciseBuilder(courseTask: this)
   }
