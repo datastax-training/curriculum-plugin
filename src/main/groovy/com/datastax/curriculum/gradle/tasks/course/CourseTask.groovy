@@ -51,10 +51,10 @@ class CourseTask extends DefaultTask {
     modules.eachWithIndex { module, index ->
       def name = module.name
       def moduleVertices = project.file(module.vertices).collect().findAll { it }
-      vertexList.add(moduleVertices)
-    }
+      vertexList.addAll(moduleVertices)
+    }d
 
-    return VertexList
+    return vertexList
   }
 
 

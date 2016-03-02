@@ -5,6 +5,7 @@ import org.gradle.api.Project
 class SolutionBuilder {
   CourseTask courseTask
 
+  
   def build() {
     def project = courseTask.project
     def solutionsFile = courseTask.solutionsFile
