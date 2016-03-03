@@ -3,6 +3,7 @@ package com.datastax.curriculum.gradle.tasks.course
 class SolutionBuilder {
   CourseTask courseTask
 
+
   SolutionBuilder(CourseTask courseTask) {
     this.courseTask = courseTask
   }

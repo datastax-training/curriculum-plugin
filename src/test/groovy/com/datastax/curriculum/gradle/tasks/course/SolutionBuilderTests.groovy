@@ -53,11 +53,11 @@ include::${courseTask.curriculumRootDir}/graph/graph-traversal/simple-traversal/
     def rootDir = '/curriculum'
     def exerciseNumber = 5
     def solution = """\
-:exercise_number: 5
+:exercise_number: ${exerciseNumber}
 :image_path: images/dev/driver/java
 include::/curriculum/dev/driver/java/src/solutions.adoc[]
 """
-    assertEquals(solution, solutionBuilder.solutionEntry(vertex, rootDir, exerciseNumber) as String)
+    assertEquals(solution, solutionBuilder.solutionEntry(vertex, rootDir, exerciseNumber))
 
   }
 
