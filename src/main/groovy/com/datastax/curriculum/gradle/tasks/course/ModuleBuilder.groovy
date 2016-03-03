@@ -22,12 +22,11 @@ class ModuleBuilder {
         def name = module.name
         def moduleVertices = project.file(module.vertices).collect().findAll { it }
         def slideFileName = "slides-${index+1}.adoc"
-        writeSlideAsciidoc("${srcDir}/${slideFileName}", moduleVertices, name)
+        writeSlideAsciidoc("${courseTask.srcDir}/${slideFileName}", moduleVertices, name)
 
         writer.println ''
         writer.println "=== ${name}"
         moduleVertices.each { vertex ->
-          println vertex
           def vertexName = extractVertexName(vertex)
           writer.println ". <<${slideFileName}#${convertVertexToAnchor(vertex)},${extractVertexName(vertex)}>>"
           vertexList << vertex

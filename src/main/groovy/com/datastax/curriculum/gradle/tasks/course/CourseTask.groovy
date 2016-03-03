@@ -2,8 +2,6 @@
 package com.datastax.curriculum.gradle.tasks.course
 
 import org.gradle.api.DefaultTask
-import org.gradle.api.file.FileCollection
-import org.gradle.api.internal.file.DefaultSourceDirectorySet
 import org.gradle.api.tasks.TaskAction
 
 

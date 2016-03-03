@@ -25,9 +25,27 @@ class ModuleBuilderTests {
     courseTask.configure {
       curriculumRootDir = new File(project.projectDir, 'curriculum').absolutePath
       slideHeader = [backend: 'deckjs', deckjs_theme: 'datastax', notes: '']
+      modules = mockedModules
     }
     courseTask.buildVertexList(mockedModules)
     moduleBuilder = new ModuleBuilder(courseTask)
+  }
+
+  @Test
+  void testBuildAllModules() {
+    def content = """\
+
+=== Introduction
+. <<slides-1.adoc#graph-graph-definition-property-graph,Property Graph>>
+
+=== Traversals
+. <<slides-2.adoc#graph-graph-traversal-gremlin-language,The Gremlin Graph Traversal Language>>
+. <<slides-2.adoc#graph-graph-traversal-simple-traversal,Simple Traversal>>
+. <<slides-2.adoc#graph-graph-traversal-mutating-traversal,Mutating Traversal>>
+"""
+    moduleBuilder.build()
+
+    assertEquals(content, new File(courseTask.courseModuleFile).text)
   }
 
 
