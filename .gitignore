@@ -5,3 +5,5 @@ build/
 *.iws
 .idea/
 gradle.properties
+userHome/
+

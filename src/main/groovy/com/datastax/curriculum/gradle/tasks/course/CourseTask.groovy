@@ -13,13 +13,14 @@ class CourseTask extends DefaultTask {
   String baseURL = 'slides.html'
 
   def vertexFile
-  List<String> vertexList = []
+  List<String> vertexList
   List<Map> modules
 
   def curriculumRootDir
   def srcDir = "${project.projectDir}/src"
   def exercisesFile = "${srcDir}/exercise-list.adoc"
-  def solutionsFile = "${srcDir}/solutions-list.adoc"
+  def solutionsFile = "${srcDir}/solution-list.adoc"
+  def vertexSolutionsFile = "${srcDir}/solutions.adoc"
   def courseModuleFile = "${srcDir}/module-list.adoc"
   def javaScriptFile = "${project.buildDir}/js/course.js"
 
@@ -38,7 +39,7 @@ class CourseTask extends DefaultTask {
   @TaskAction
   def courseAction() {
     slideHeader.customjs = 'js/course.js'
-    vertexList = buildVertexList(modules)
+    buildVertexList(modules)
 
     builders.each { it.build() }
 
@@ -47,12 +48,12 @@ class CourseTask extends DefaultTask {
 
 
   def buildVertexList(modules) {
-    def vertexList = []
+    vertexList = []
     modules.eachWithIndex { module, index ->
       def name = module.name
       def moduleVertices = project.file(module.vertices).collect().findAll { it }
       vertexList.addAll(moduleVertices)
-    }d
+    }
 
     return vertexList
   }

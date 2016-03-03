@@ -23,6 +23,7 @@ class CourseTaskTests {
     courseTask = project.tasks.create('courseResources', CourseTask)
     courseTask.configure {
       curriculumRootDir = new File('src/test/resources').absoluteFile
+      vertexSolutionsFile = 'src/test/resources/src'
     }
   }
 

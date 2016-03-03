@@ -1,7 +1,5 @@
 package com.datastax.curriculum.gradle.tasks.course
 
-import org.gradle.api.Project
-
 class SolutionBuilder {
   CourseTask courseTask
 
@@ -17,11 +15,11 @@ class SolutionBuilder {
     def curriculumRootDir = courseTask.curriculumRootDir
 
     int exerciseNumber = 1
-    def exercisesFile = project.file(solutionsFile)
-    exercisesFile.withWriter { writer ->
+    def outputFile = project.file(solutionsFile)
+    outputFile.withWriter { writer ->
       writer.println ''
       vertexList.each { vertex ->
-        if(project.file(courseTask.vertexSolutionsFile).exists()) {
+        if(project.file(solutionFileName(vertex, curriculumRootDir)).exists()) {
           writer.println solutionEntry(vertex, curriculumRootDir, exerciseNumber++)
         }
       }
@@ -30,12 +28,16 @@ class SolutionBuilder {
   }
 
 
+  def solutionFileName(vertex, curriculumRootDir) {
+    "${curriculumRootDir}/${vertex}/src/solutions.adoc"
+  }
+
+
   def solutionEntry(vertex, curriculumRootDir, exerciseNumber) {
     """\
 :exercise_number: ${exerciseNumber}
 :image_path: images/${vertex}
-include::${curriculumRootDir}/${vertex}/src/solutions.adoc[]
-
+include::${solutionFileName(vertex, curriculumRootDir)}[]
 """
   }
 }
