@@ -24,8 +24,6 @@ class ModuleBuilderTests {
     courseTask = project.tasks.create('courseResources', CourseTask)
     courseTask.configure {
       curriculumRootDir = new File(project.projectDir, 'curriculum').absolutePath
-      //exercisesFile = exerciseOutputFile
-
       slideHeader = [backend: 'deckjs', deckjs_theme: 'datastax', notes: '']
     }
     courseTask.buildVertexList(mockedModules)
@@ -42,7 +40,7 @@ class ModuleBuilderTests {
 = ${title}
 :backend: deckjs
 :deckjs_theme: datastax
-:notes:
+${":notes: "}
 
 :slide_path: slides
 :image_path: images/graph/graph-traversal/gremlin-language

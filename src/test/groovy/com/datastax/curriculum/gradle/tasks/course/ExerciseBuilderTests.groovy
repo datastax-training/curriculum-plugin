@@ -27,8 +27,8 @@ class ExerciseBuilderTests {
     courseTask.configure {
       curriculumRootDir = new File(project.projectDir, 'curriculum').absolutePath
       exercisesFile = exerciseOutputFile
-      courseTask.buildVertexList(mockedModules)
     }
+    courseTask.buildVertexList(mockedModules)
     exerciseBuilder = new ExerciseBuilder(courseTask)
   }
 

@@ -26,8 +26,8 @@ class SolutionBuilderTests {
     courseTask.configure {
       curriculumRootDir = new File(project.projectDir, 'curriculum').absolutePath
       solutionsFile = solutionsOutputFile
-      courseTask.buildVertexList(mockedModules)
     }
+    courseTask.buildVertexList(mockedModules)
     solutionBuilder = new SolutionBuilder(courseTask)
   }
 
