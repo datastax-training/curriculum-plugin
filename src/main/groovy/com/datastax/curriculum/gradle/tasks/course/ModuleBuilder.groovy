@@ -1,14 +1,20 @@
 package com.datastax.curriculum.gradle.tasks.course
 
+
 class ModuleBuilder {
   CourseTask courseTask
-  List<Map> modules
+
+
+  ModuleBuilder(CourseTask courseTask) {
+    this.courseTask = courseTask
+  }
 
 
   def build() {
     def project = courseTask.project
     def courseModuleFile = courseTask.courseModuleFile
     def curriculumRootDir = courseTask.curriculumRootDir
+    def modules = courseTask.modules
 
     def vertexList = []
     project.file(courseModuleFile).withWriter { writer ->
@@ -33,15 +39,15 @@ class ModuleBuilder {
 
 
   def writeSlideAsciidoc(slidesFile, vertexList, title) {
-    project.file(slidesFile).withWriter { writer ->
+    courseTask.project.file(slidesFile).withWriter { writer ->
       writer.println "= ${title}"
-      writer.println convertHeaderMapToString(slideHeader)
+      writer.println convertHeaderMapToString(courseTask.slideHeader)
       writer.println ''
       vertexList.each { vertex ->
         writer.println ":slide_path: slides"
         writer.println ":image_path: images/${vertex}"
         writer.println "[[${convertVertexToAnchor(vertex)}]]"
-        writer.println "include::${curriculumRootDir}/${vertex}/src/includes.adoc[]"
+        writer.println "include::${courseTask.curriculumRootDir}/${vertex}/src/includes.adoc[]"
         writer.println ''
       }
       writer.flush()
@@ -50,10 +56,13 @@ class ModuleBuilder {
 
 
   def extractVertexName(vertex) {
+    def project = courseTask.project
+    def curriculumRootDir = courseTask.curriculumRootDir
+
     def adocFile = project.file("${curriculumRootDir}/${vertex}/src/slides.adoc")
     def lines = adocFile.text.split('\n')
     def titleLine = lines.find { it.startsWith('=') }
-    return titleLine[2..-1]
+    return titleLine[2..-1].trim()
   }
 
 
