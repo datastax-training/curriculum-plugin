@@ -28,6 +28,10 @@ class CourseTask extends DefaultTask {
 
 
   CourseTask() {
+    //
+    // A course task has a lot of work to do. This work is broken up into Builder
+    // classes, each of which has a single purpose.
+    //
     builders << new SolutionBuilder(this)
     builders << new ModuleBuilder(this)
     builders << new ExerciseBuilder(this)
@@ -38,7 +42,6 @@ class CourseTask extends DefaultTask {
   def courseAction() {
     slideHeader.customjs = 'js/course.js'
     buildVertexList(modules)
-
     builders.each { it.build() }
 
     copyImagesAndResources()

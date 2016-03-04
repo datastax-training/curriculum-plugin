@@ -1,0 +1,8 @@
+== VERTEX NAME
+
+=== Learning Objectives
+
+*The objectives for this leaf are:*
+
+* You will be able to DO SOMETHING AWESOME.
+* You will be able to DO SOMETHING ELSE AWESOME.

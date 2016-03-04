@@ -29,6 +29,12 @@ class CourseTaskTests {
 
 
   @Test
+  void testCourseDependencies() {
+
+  }
+
+
+  @Test
   void testVertexList() {
     def vertexList = courseTask.buildVertexList(modules)
     assertEquals(4, vertexList.size())
