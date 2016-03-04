@@ -1,7 +1,5 @@
 package com.datastax.curriculum.gradle
 
-import org.gradle.api.Project
-import org.gradle.testfixtures.ProjectBuilder
 import org.junit.Before
 import org.junit.Test
 import static org.junit.Assert.*
@@ -10,12 +8,11 @@ import static org.junit.Assert.*
 class VertexTests {
   Vertex vnodes
 
+
   @Before
   void setup() {
-    def curriculumRoot
-
-    curriculumRoot = new File('src/test/resources/curriculum')
-    vnodes = new Vertex(curriculumRoot, 'cassandra/internals/distributed-architecture/vnodes')
+    vnodes = new Vertex('cassandra/internals/distributed-architecture/vnodes')
+    vnodes.curriculumRoot = new File('src/test/resources/curriculum')
   }
 
 
@@ -40,7 +37,7 @@ class VertexTests {
     assertNotNull(vnodes.exercises)
     assertNotNull(vnodes.javaScript)
     assertNotNull(vnodes.slides)
-    assertNotNull(vnodes.vertexName)
+    assertNotNull(vnodes.vertexPath)
     assertEquals(12, vnodes.images.size())
     assertTrue(vnodes.includes instanceof File)
     assertTrue(vnodes.javaScript instanceof File)
@@ -52,7 +49,7 @@ class VertexTests {
     assertEquals('curriculum/cassandra/internals/distributed-architecture/vnodes/src/solutions.adoc', vnodes.solutions.absolutePath[-81..-1])
     assertEquals('curriculum/cassandra/internals/distributed-architecture/vnodes/src/includes.adoc', vnodes.includes.absolutePath[-80..-1])
     assertEquals('curriculum/cassandra/internals/distributed-architecture/vnodes/js/animation.js', vnodes.javaScript.absolutePath[-78..-1])
-    assertEquals('cassandra/internals/distributed-architecture/vnodes', vnodes.vertexName)
+    assertEquals('cassandra/internals/distributed-architecture/vnodes', vnodes.vertexPath)
     def vertexImages = vnodes.images.collect { it.name }.sort()
     imageFilenames.sort().eachWithIndex { filename, index ->
       assertEquals(filename, vertexImages[index])
@@ -72,5 +69,13 @@ class VertexTests {
   }
 
 
-
+  @Test
+  void testVertexDependencies() {
+//    def deps = vnodes.dependencies
+//    assertNotNull(deps)
+//    assertNotNull(deps.javaScript)
+//    assertNotNull(deps.images)
+//    assertNotNull(deps.slides)
+//    assertNotNull(deps.docs)
+  }
 }

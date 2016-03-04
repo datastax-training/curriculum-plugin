@@ -1,18 +1,25 @@
 package com.datastax.curriculum.gradle
 
+
 class Vertex {
-  String vertexName
+  String vertexPath
   File curriculumRoot
   File vertexDir
-  def includes
-  def slides
-  def objectives
-  def exercises
-  def solutions
-  def javaScript
-  def images = []
+  File includes
+  File slides
+  File objectives
+  File exercises
+  File solutions
+  File javaScript
+  List<File> images = []
 
-  Vertex(curriculumRoot, vertexName) {
+
+  Vertex(vertexPath) {
+    this.vertexPath = vertexPath
+  }
+
+
+  void setCurriculumRoot(curriculumRoot) {
     if(curriculumRoot instanceof File) {
       this.curriculumRoot = curriculumRoot
     }
@@ -20,8 +27,7 @@ class Vertex {
       this.curriculumRoot = new File(curriculumRoot)
     }
 
-    vertexDir = new File(curriculumRoot, vertexName)
-    this.vertexName = vertexName
+    vertexDir = new File(curriculumRoot, vertexPath)
     includes = new File(vertexDir, 'src/includes.adoc')
     slides = new File(vertexDir, 'src/slides.adoc')
     objectives = new File(vertexDir, 'src/objectives.adoc')
@@ -41,14 +47,14 @@ class Vertex {
 
 
   def getHtmlAnchor() {
-    vertexName.replace('/', '-')
+    vertexPath.replace('/', '-')
   }
 
 
   @Override
   public String toString() {
     return "Vertex{" +
-            "vertexName='" + vertexName + '\'' +
+            "vertexPath='" + vertexPath + '\'' +
             ", curriculumRoot=" + curriculumRoot +
             ", includes=" + includes +
             ", slides=" + slides +
