@@ -20,24 +20,27 @@ class Module {
       this.moduleFile = new File(moduleFile)
     }
 
-    if(!this.moduleFile.isAbsolute()) {
-      this.moduleFile = new File(curriculumRoot, this.moduleFile.path)
-    }
+//    if(!this.moduleFile.isAbsolute()) {
+//      this.moduleFile = new File(curriculumRoot, this.moduleFile.path)
+//    }
   }
 
 
   Module withModuleFile(mf) {
     setModuleFile(mf)
+    moduleFile.eachLine { vertexPath ->
+      addVertex(vertexPath)
+    }
     return this
   }
 
 
   void setCurriculumRoot(curriculumRoot) {
     if(curriculumRoot instanceof File) {
-      this.curriculumRoot = curriculumRoot
+      this.curriculumRoot = curriculumRoot.absoluteFile
     }
     else {
-      this.curriculumRoot = new File(curriculumRoot)
+      this.curriculumRoot = new File(curriculumRoot).absoluteFile
     }
   }
 

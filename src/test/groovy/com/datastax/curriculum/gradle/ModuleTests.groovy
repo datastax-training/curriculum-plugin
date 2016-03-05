@@ -12,31 +12,41 @@ class ModuleTests {
   @Before
   void setup() {
     curriculumRoot = new File('src/test/resources/curriculum')
-    internals = new Module('Internals').withCurriculumRoot(curriculumRoot).withModuleFile('modules/internals.txt')
-    graphIntro = new Module('Graph Introduction').withCurriculumRoot(curriculumRoot).withModuleFile('modules/introduction.txt')
-    traversals = new Module('Graph Traversals').withCurriculumRoot(curriculumRoot).withModuleFile('modules/traversals.txt')
+    internals = new Module('Internals').withCurriculumRoot(curriculumRoot)
+    graphIntro = new Module('Graph Introduction').withCurriculumRoot(curriculumRoot).withModuleFile('src/test/resources/modules/introduction.txt')
+    traversals = new Module('Graph Traversals').withCurriculumRoot(curriculumRoot).withModuleFile('src/test/resources/modules/traversals.txt')
   }
 
 
   @Test
   void testModuleFilenames() {
-    assertEquals("${curriculumRoot.absolutePath}/modules/internals.txt" as String, internals.moduleFile.absolutePath)
-    assertEquals("${curriculumRoot.absolutePath}/modules/introduction.txt" as String, graphIntro.moduleFile.absolutePath)
-    assertEquals("${curriculumRoot.absolutePath}/modules/traversals.txt" as String, traversals.moduleFile.absolutePath)
+    assertEquals(new File('src/test/resources/modules/introduction.txt').absolutePath, graphIntro.moduleFile.absolutePath)
+    assertEquals(new File('src/test/resources/modules/traversals.txt').absolutePath, traversals.moduleFile.absolutePath)
   }
 
 
   @Test
   void testModuleAdding() {
     internals.addVertex('cassandra/internals/distributed-architecture/vnodes')
-
     assertNotNull(internals.vertices)
     assertEquals(1, internals.vertices.size())
+
     Vertex vnodes = internals.vertices[0]
     assertNotNull(vnodes)
     assertEquals('cassandra/internals/distributed-architecture/vnodes', vnodes.vertexPath)
     assertNotNull(vnodes.slides)
+    println vnodes.slides.absolutePath
     assertTrue(vnodes.slides.exists())
+  }
+
+
+  @Test
+  void testModuleFile() {
+    assertNotNull(traversals.vertices)
+    assertEquals(3, traversals.vertices.size())
+    assertEquals('graph/graph-traversal/gremlin-language', traversals.vertices[0].vertexPath)
+    assertEquals('graph/graph-traversal/simple-traversal', traversals.vertices[1].vertexPath)
+    assertEquals('graph/graph-traversal/mutating-traversal', traversals.vertices[2].vertexPath)
   }
 
 

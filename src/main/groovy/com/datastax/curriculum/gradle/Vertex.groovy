@@ -21,10 +21,10 @@ class Vertex {
 
   void setCurriculumRoot(curriculumRoot) {
     if(curriculumRoot instanceof File) {
-      this.curriculumRoot = curriculumRoot
+      this.curriculumRoot = curriculumRoot.absoluteFile
     }
     else {
-      this.curriculumRoot = new File(curriculumRoot)
+      this.curriculumRoot = new File(curriculumRoot).absoluteFile
     }
 
     vertexDir = new File(curriculumRoot, vertexPath)
