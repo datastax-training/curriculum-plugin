@@ -24,6 +24,10 @@ class ModuleTests {
     assertNotNull(traversals.moduleFile.absolutePath)
     assertTrue(graphIntro.moduleFile.exists())
     assertTrue(traversals.moduleFile.exists())
+
+    // Rough test to establish that we're probably pointing to the right files
+    assertEquals(1, graphIntro.moduleFile.readLines().size())
+    assertEquals(3, traversals.moduleFile.readLines().size())
   }
 
 

@@ -7,12 +7,15 @@ import static org.junit.Assert.*
 
 class VertexTests {
   Vertex vnodes
+  File curriculumRoot
+  String vertexPath = 'cassandra/internals/distributed-architecture/vnodes'
 
 
   @Before
   void setup() {
-    vnodes = new Vertex('cassandra/internals/distributed-architecture/vnodes')
-    vnodes.curriculumRoot = new File('src/test/resources/curriculum')
+    curriculumRoot = new File('src/test/resources/curriculum')
+    vnodes = new Vertex(vertexPath)
+    vnodes.curriculumRoot = curriculumRoot
   }
 
 
@@ -67,6 +70,35 @@ class VertexTests {
   void testVertexToAnchor() {
     assertEquals('cassandra-internals-distributed-architecture-vnodes', vnodes.htmlAnchor)
   }
+
+
+  @Test
+  void testCourseExerciseInclude() {
+    def exerciseNumber = 5
+    def solution = """\
+:exercise_number: ${exerciseNumber}
+:image_path: images/${vertexPath}
+[[EXERCISE-${exerciseNumber}]]
+include::${curriculumRoot.absolutePath}/${vertexPath}/src/exercises.adoc[]
+"""
+    assertEquals(solution, vnodes.courseExerciseInclude(exerciseNumber))
+  }
+
+
+  @Test
+  void testExerciseFileName() {
+    assertNotNull(vnodes.exerciseFile)
+    assertEquals("${curriculumRoot.absolutePath}/${vertexPath}/src/exercises.adoc" as String,
+                 vnodes.exerciseFile.absolutePath)
+  }
+
+  @Test
+  void testSolutionFileName() {
+    assertNotNull(vnodes.exerciseFile)
+    assertEquals("${curriculumRoot.absolutePath}/${vertexPath}/src/solutions.adoc" as String,
+                 vnodes.solutionFile.absolutePath)
+  }
+
 
 
   @Test

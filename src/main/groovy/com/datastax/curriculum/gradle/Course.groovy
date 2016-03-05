@@ -25,4 +25,23 @@ class Course {
   }
 
 
+  void setCurriculumRoot(curriculumRoot) {
+    if(curriculumRoot instanceof File) {
+      this.curriculumRoot = curriculumRoot.absoluteFile
+    }
+    else {
+      this.curriculumRoot = new File(curriculumRoot).absoluteFile
+    }
+  }
+
+
+  Course withCurriculumRoot(cr) {
+    setCurriculumRoot(cr)
+    return this
+  }
+
+
+  Course addModule(Module module) {
+    modules << module
+  }
 }

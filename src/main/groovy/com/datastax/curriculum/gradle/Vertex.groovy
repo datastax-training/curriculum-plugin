@@ -51,6 +51,32 @@ class Vertex {
   }
 
 
+
+  def courseExerciseInclude(exerciseNumber) {
+    """\
+:exercise_number: ${exerciseNumber}
+:image_path: images/${vertexPath}
+[[EXERCISE-${exerciseNumber}]]
+include::${exerciseFile.absolutePath}[]
+"""
+  }
+
+
+  File getExerciseFile() {
+    new File("${vertexRoot}/src/exercises.adoc")
+  }
+
+
+  def getSolutionFile() {
+    new File("${vertexRoot}/src/solutions.adoc")
+  }
+
+
+  String getVertexRoot() {
+    "${curriculumRoot.absolutePath}/${vertexPath}"
+  }
+
+
   @Override
   public String toString() {
     return "Vertex{" +
