@@ -20,9 +20,9 @@ class Module {
       this.moduleFile = new File(moduleFile)
     }
 
-//    if(!this.moduleFile.isAbsolute()) {
-//      this.moduleFile = new File(curriculumRoot, this.moduleFile.path)
-//    }
+    if(!this.moduleFile.isAbsolute()) {
+      this.moduleFile = new File(curriculumRoot, this.moduleFile.path)
+    }
   }
 
 

@@ -13,15 +13,17 @@ class ModuleTests {
   void setup() {
     curriculumRoot = new File('src/test/resources/curriculum')
     internals = new Module('Internals').withCurriculumRoot(curriculumRoot)
-    graphIntro = new Module('Graph Introduction').withCurriculumRoot(curriculumRoot).withModuleFile('src/test/resources/modules/introduction.txt')
-    traversals = new Module('Graph Traversals').withCurriculumRoot(curriculumRoot).withModuleFile('src/test/resources/modules/traversals.txt')
+    graphIntro = new Module('Graph Introduction').withCurriculumRoot(curriculumRoot).withModuleFile('courses/test-course/modules/introduction.txt')
+    traversals = new Module('Graph Traversals').withCurriculumRoot(curriculumRoot).withModuleFile('courses/test-course/modules/traversals.txt')
   }
 
 
   @Test
   void testModuleFilenames() {
-    assertEquals(new File('src/test/resources/modules/introduction.txt').absolutePath, graphIntro.moduleFile.absolutePath)
-    assertEquals(new File('src/test/resources/modules/traversals.txt').absolutePath, traversals.moduleFile.absolutePath)
+    assertNotNull(graphIntro.moduleFile.absolutePath)
+    assertNotNull(traversals.moduleFile.absolutePath)
+    assertTrue(graphIntro.moduleFile.exists())
+    assertTrue(traversals.moduleFile.exists())
   }
 
 
@@ -56,6 +58,4 @@ class ModuleTests {
     assertEquals('Graph Introduction', graphIntro.name)
     assertEquals('Graph Traversals', traversals.name)
   }
-
-
 }
