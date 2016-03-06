@@ -2,6 +2,8 @@ package com.datastax.curriculum.gradle
 
 import org.junit.Before
 import org.junit.Test
+import org.junit.validator.TestClassValidator
+
 import static org.junit.Assert.*
 
 
@@ -62,5 +64,19 @@ class ModuleTests {
     assertEquals('Internals', internals.name)
     assertEquals('Graph Introduction', graphIntro.name)
     assertEquals('Graph Traversals', traversals.name)
+  }
+
+
+  @Test
+  void testModuleListAsciidoc() {
+    def moduleNumber = 2
+    def content = """\
+=== Graph Traversals
+. <<slides-${moduleNumber}.adoc#graph-graph-traversal-gremlin-language,The Gremlin Graph Traversal Language>>
+. <<slides-${moduleNumber}.adoc#graph-graph-traversal-simple-traversal,Simple Traversal>>
+. <<slides-${moduleNumber}.adoc#graph-graph-traversal-mutating-traversal,Mutating Traversal>>
+"""
+
+    assertEquals(content as String, traversals.vertexListAsciidoc(moduleNumber))
   }
 }

@@ -52,12 +52,22 @@ class Vertex {
 
 
 
-  def courseExerciseInclude(exerciseNumber) {
+  def exerciseIncludeAsciidoc(exerciseNumber) {
     """\
 :exercise_number: ${exerciseNumber}
 :image_path: images/${vertexPath}
 [[EXERCISE-${exerciseNumber}]]
 include::${exerciseFile.absolutePath}[]
+"""
+  }
+
+
+  def solutionIncludeAsciidoc(solutionNumber) {
+    """\
+:solution_number: ${solutionNumber}
+:image_path: images/${vertexPath}
+[[SOLUTION-${solutionNumber}]]
+include::${solutionFile.absolutePath}[]
 """
   }
 

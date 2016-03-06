@@ -8,13 +8,13 @@ import static org.junit.Assert.*
 class VertexTests {
   Vertex vnodes
   File curriculumRoot
-  String vertexPath = 'cassandra/internals/distributed-architecture/vnodes'
+  String vnodeVertexPath = 'cassandra/internals/distributed-architecture/vnodes'
 
 
   @Before
   void setup() {
     curriculumRoot = new File('src/test/resources/curriculum')
-    vnodes = new Vertex(vertexPath)
+    vnodes = new Vertex(vnodeVertexPath)
     vnodes.curriculumRoot = curriculumRoot
   }
 
@@ -75,27 +75,41 @@ class VertexTests {
   @Test
   void testCourseExerciseInclude() {
     def exerciseNumber = 5
-    def solution = """\
+    def exercise = """\
 :exercise_number: ${exerciseNumber}
-:image_path: images/${vertexPath}
+:image_path: images/${vnodeVertexPath}
 [[EXERCISE-${exerciseNumber}]]
-include::${curriculumRoot.absolutePath}/${vertexPath}/src/exercises.adoc[]
+include::${curriculumRoot.absolutePath}/${vnodeVertexPath}/src/exercises.adoc[]
 """
-    assertEquals(solution, vnodes.courseExerciseInclude(exerciseNumber))
+    assertEquals(exercise, vnodes.exerciseIncludeAsciidoc(exerciseNumber))
+  }
+
+
+  @Test
+  void testCourseSolutionInclude() {
+    def solutionNumber = 5
+    def solution = """\
+:solution_number: ${solutionNumber}
+:image_path: images/${vnodeVertexPath}
+[[SOLUTION-${solutionNumber}]]
+include::${curriculumRoot.absolutePath}/${vnodeVertexPath}/src/solutions.adoc[]
+"""
+    assertEquals(solution, vnodes.solutionIncludeAsciidoc(solutionNumber))
   }
 
 
   @Test
   void testExerciseFileName() {
     assertNotNull(vnodes.exerciseFile)
-    assertEquals("${curriculumRoot.absolutePath}/${vertexPath}/src/exercises.adoc" as String,
+    assertEquals("${curriculumRoot.absolutePath}/${vnodeVertexPath}/src/exercises.adoc" as String,
                  vnodes.exerciseFile.absolutePath)
   }
+
 
   @Test
   void testSolutionFileName() {
     assertNotNull(vnodes.exerciseFile)
-    assertEquals("${curriculumRoot.absolutePath}/${vertexPath}/src/solutions.adoc" as String,
+    assertEquals("${curriculumRoot.absolutePath}/${vnodeVertexPath}/src/solutions.adoc" as String,
                  vnodes.solutionFile.absolutePath)
   }
 

@@ -59,4 +59,16 @@ class Module {
     return this
   }
 
+
+  String vertexListAsciidoc(int moduleNumber) {
+    Writer writer = new CharArrayWriter()
+
+    writer.println "=== ${name}"
+    vertices.each { vertex ->
+      writer.println ". <<slides-${moduleNumber}.adoc#${vertex.htmlAnchor},${vertex.slideName}>>"
+    }
+
+    return writer.toString()
+  }
+
 }

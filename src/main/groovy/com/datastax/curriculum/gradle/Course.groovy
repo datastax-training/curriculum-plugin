@@ -8,6 +8,7 @@ class Course {
   def curriculumRoot
   File exerciseFile
   File solutionFile
+  File moduleFile
   def srcDir
 
 
@@ -53,19 +54,21 @@ class Course {
       this.srcDir = new File(srcDir).absoluteFile
     }
 
-    solutionFile = new File(srcDir, 'solutions.adoc')
-    exerciseFile = new File(srcDir, 'exercises.adoc')
+    solutionFile = new File(srcDir, 'solution-list.adoc').absoluteFile
+    exerciseFile = new File(srcDir, 'exercise-list.adoc').absoluteFile
+    moduleFile = new File(srcDir, 'module-list.adoc').absoluteFile
   }
 
 
   Course withSrcDir(srcDir) {
-    this.srcDir = srcDir
+    setSrcDir(srcDir)
     return this
   }
 
 
   Course addModule(Module module) {
     modules << module
+    return this
   }
 
 
@@ -75,20 +78,40 @@ class Course {
   }
 
 
-  void buildSolutionsFile() {
+  void buildSlides() {
 
   }
 
 
-  void buildExercisesFile() {
-    def exerciseNumber = 1
-    exerciseFile.withWriter { file ->
+  void buildModuleFile() {
+    moduleFile.withWriter { file ->
+      modules.eachWithIndex { module, moduleNumber ->
+        file.println module.vertexListAsciidoc(moduleNumber + 1)
+      }
+    }
+  }
+
+
+  void buildSolutionFile() {
+    def solutionNumber = 1
+    solutionFile.withWriter { file ->
       modules.each { module ->
         module.vertices.each { vertex ->
-          file.println vertex.courseExerciseInclude(exerciseNumber++)
+          file.println vertex.solutionIncludeAsciidoc(solutionNumber++)
         }
       }
     }
   }
 
+
+  void buildExerciseFile() {
+    def exerciseNumber = 1
+    exerciseFile.withWriter { file ->
+      modules.each { module ->
+        module.vertices.each { vertex ->
+          file.println vertex.exerciseIncludeAsciidoc(exerciseNumber++)
+        }
+      }
+    }
+  }
 }
