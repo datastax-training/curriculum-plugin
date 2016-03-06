@@ -4,6 +4,7 @@ import org.junit.Before
 import org.junit.Test
 import static org.junit.Assert.*
 
+
 class ModuleTests {
   Module internals, graphIntro, traversals
   File curriculumRoot

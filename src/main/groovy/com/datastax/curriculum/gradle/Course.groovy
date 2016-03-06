@@ -5,6 +5,10 @@ class Course {
   List<Module> modules = []
   def slideHeader = [:]
   def exerciseHeader = [:]
+  def curriculumRoot
+  File exerciseFile
+  File solutionFile
+  def srcDir
 
 
   Course(name) {
@@ -41,7 +45,50 @@ class Course {
   }
 
 
+  void setSrcDir(srcDir) {
+    if(srcDir instanceof File) {
+      this.srcDir = srcDir.absoluteFile
+    }
+    else {
+      this.srcDir = new File(srcDir).absoluteFile
+    }
+
+    solutionFile = new File(srcDir, 'solutions.adoc')
+    exerciseFile = new File(srcDir, 'exercises.adoc')
+  }
+
+
+  Course withSrcDir(srcDir) {
+    this.srcDir = srcDir
+    return this
+  }
+
+
   Course addModule(Module module) {
     modules << module
   }
+
+
+  void build() {
+    buildSolutionsFile()
+    buildExercisesFile()
+  }
+
+
+  void buildSolutionsFile() {
+
+  }
+
+
+  void buildExercisesFile() {
+    def exerciseNumber = 1
+    exerciseFile.withWriter { file ->
+      modules.each { module ->
+        module.vertices.each { vertex ->
+          file.println vertex.courseExerciseInclude(exerciseNumber++)
+        }
+      }
+    }
+  }
+
 }
