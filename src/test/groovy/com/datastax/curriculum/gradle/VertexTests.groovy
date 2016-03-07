@@ -6,16 +6,17 @@ import static org.junit.Assert.*
 
 
 class VertexTests {
-  Vertex vnodes
+  Vertex vnodes, simpleTraversal
   File curriculumRoot
   String vnodeVertexPath = 'cassandra/internals/distributed-architecture/vnodes'
-
+  String simpleTraversalPath = 'graph/graph-traversal/simple-traversal'
 
   @Before
   void setup() {
     curriculumRoot = new File('src/test/resources/curriculum')
     vnodes = new Vertex(vnodeVertexPath)
     vnodes.curriculumRoot = curriculumRoot
+    simpleTraversal = new Vertex(simpleTraversalPath).withCurriculumRoot(curriculumRoot)
   }
 
 
@@ -126,14 +127,36 @@ include::${curriculumRoot.absolutePath}/${vnodeVertexPath}/src/includes.adoc[]
   }
 
 
+  @Test
+  void getAsciidocSlideFiles() {
+    def files = simpleTraversal.slideAsciidocFiles
+    assertNotNull(files)
+    assertEquals(5, files.size())
+  }
+
 
   @Test
   void testVertexDependencies() {
-//    def deps = vnodes.dependencies
-//    assertNotNull(deps)
-//    assertNotNull(deps.javaScript)
-//    assertNotNull(deps.images)
-//    assertNotNull(deps.slides)
-//    assertNotNull(deps.docs)
+    def deps = simpleTraversal.dependencies
+    assertNotNull(deps)
+    assertNotNull(deps.javaScript)
+    assertNotNull(deps.images)
+    assertNotNull(deps.slides)
+    assertNotNull(deps.docs)
+  }
+
+
+  @Test
+  void testSlideImageFileListing() {
+    def files
+
+    files = vnodes.slideImageFiles
+    assertNotNull(files)
+    assertEquals(12, files.size())
+    assertNull(files.find { it.name.endsWith('.txt')})
+
+    files = simpleTraversal.slideImageFiles
+    assertNotNull(files)
+    assertEquals(7, files.size())
   }
 }

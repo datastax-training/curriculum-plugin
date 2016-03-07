@@ -11,6 +11,7 @@ class Vertex {
   File exercises
   File solutions
   File javaScript
+  File imageDir
   List<File> images = []
 
 
@@ -34,8 +35,14 @@ class Vertex {
     exercises = new File(vertexDir, 'src/exercises.adoc')
     solutions = new File(vertexDir, 'src/solutions.adoc')
     javaScript = new File(vertexDir, 'js/animation.js')
-    def imageDir = new File(vertexDir, 'images')
+    imageDir = new File(vertexDir, 'images')
     images = imageDir.listFiles()
+  }
+
+
+  Vertex withCurriculumRoot(curriculumRoot) {
+    setCurriculumRoot(curriculumRoot)
+    return this
   }
 
 
@@ -93,5 +100,37 @@ include::${solutionFile.absolutePath}[]
 
   String getVertexRoot() {
     "${curriculumRoot.absolutePath}/${vertexPath}"
+  }
+
+
+  def getSlideAsciidocFiles() {
+    def files = []
+    File slidesDir = new File(vertexDir.absoluteFile, 'src/slides')
+
+    files.addAll slidesDir.listFiles(new FilenameFilter() {
+      boolean accept(File dir, String name) {
+        name.endsWith('.adoc')
+      }
+    })
+    files << slides
+    files << includes
+  }
+
+
+  def getSlideImageFiles() {
+    imageDir.listFiles(new FilenameFilter() {
+      boolean accept(File dir, String name) {
+        name[-4..-1] in ['.jpg', '.png', '.svg']
+      }
+    })
+  }
+
+
+  Map getDependencies() {
+    def deps = [:]
+    deps.javaScript = javaScript
+    deps.slides = slideAsciidocFiles
+    deps.docs = [ exercises, solutions, objectives ]
+    deps.images = images
   }
 }

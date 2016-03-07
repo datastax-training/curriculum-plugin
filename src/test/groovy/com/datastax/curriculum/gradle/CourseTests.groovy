@@ -53,7 +53,6 @@ include::${curriculumRoot.absolutePath}/cassandra/internals/distributed-architec
   }
 
 
-
   @Test
   void testBuildCompleteExerciseFile() {
     def exerciseFileText = """\
