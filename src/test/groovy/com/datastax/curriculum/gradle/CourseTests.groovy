@@ -19,7 +19,9 @@ class CourseTests {
     internals = new Module('Internals').withCurriculumRoot(curriculumRoot).withModuleFile('courses/test-course/modules/internals.txt')
     graphIntro = new Module('Graph Introduction').withCurriculumRoot(curriculumRoot).withModuleFile('courses/test-course/modules/introduction.txt')
     traversals = new Module('Graph Traversals').withCurriculumRoot(curriculumRoot).withModuleFile('courses/test-course/modules/traversals.txt')
-    emptyCourse = new Course("Test Course").withCurriculumRoot(curriculumRoot)
+    emptyCourse = new Course("Test Course")
+                  .withCurriculumRoot(curriculumRoot)
+                  .withSrcDir(srcDir)
     course = new Course("Test Course")
                   .withCurriculumRoot(curriculumRoot)
                   .withSrcDir(srcDir)
@@ -90,7 +92,56 @@ include::${curriculumRoot.absolutePath}/cassandra/internals/distributed-architec
 
 """
 
-    course.buildModuleFile()
+    course.buildModuleListFile()
     assertEquals(content as String, course.moduleFile.text)
+  }
+
+
+  @Test
+  void testCourseHeader() {
+    def content = """\
+:animation:
+:backend: deckjs
+:deckjs_theme: datastax
+:goto:
+:icons: font
+:navigation:
+:notes:
+:split:"""
+    assertEquals(content, course.convertSlideHeaderToAsciidoc())
+  }
+
+
+  @Test
+  void testModuleSlideFile() {
+    def content = """\
+= Graph Traversals
+:animation:
+:backend: deckjs
+:deckjs_theme: datastax
+:goto:
+:icons: font
+:navigation:
+:notes:
+:split:
+
+:slide_path: slides
+:image_path: images/graph/graph-traversal/gremlin-language
+[[graph-graph-traversal-gremlin-language]]
+include::${curriculumRoot.absolutePath}/graph/graph-traversal/gremlin-language/src/includes.adoc[]
+
+:slide_path: slides
+:image_path: images/graph/graph-traversal/simple-traversal
+[[graph-graph-traversal-simple-traversal]]
+include::${curriculumRoot.absolutePath}/graph/graph-traversal/simple-traversal/src/includes.adoc[]
+
+:slide_path: slides
+:image_path: images/graph/graph-traversal/mutating-traversal
+[[graph-graph-traversal-mutating-traversal]]
+include::${curriculumRoot.absolutePath}/graph/graph-traversal/mutating-traversal/src/includes.adoc[]
+
+"""
+    def file = emptyCourse.buildModuleSlideFile(traversals, 1)
+    assertEquals(content as String, file.text)
   }
 }

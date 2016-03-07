@@ -99,6 +99,18 @@ include::${curriculumRoot.absolutePath}/${vnodeVertexPath}/src/solutions.adoc[]
 
 
   @Test
+  void testSlideIncludesAsciidoc() {
+    def content = """\
+:slide_path: slides
+:image_path: images/${vnodeVertexPath}
+[[cassandra-internals-distributed-architecture-vnodes]]
+include::${curriculumRoot.absolutePath}/${vnodeVertexPath}/src/includes.adoc[]
+"""
+    assertEquals(content, vnodes.slideIncludeAsciidoc())
+  }
+
+
+  @Test
   void testExerciseFileName() {
     assertNotNull(vnodes.exerciseFile)
     assertEquals("${curriculumRoot.absolutePath}/${vnodeVertexPath}/src/exercises.adoc" as String,

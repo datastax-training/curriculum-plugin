@@ -51,6 +51,15 @@ class Vertex {
   }
 
 
+  def slideIncludeAsciidoc() {
+    """\
+:slide_path: slides
+:image_path: images/${vertexPath}
+[[${htmlAnchor}]]
+include::${includes.absolutePath}[]
+"""
+  }
+
 
   def exerciseIncludeAsciidoc(exerciseNumber) {
     """\

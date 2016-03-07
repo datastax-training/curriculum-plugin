@@ -9,7 +9,7 @@ class Course {
   File exerciseFile
   File solutionFile
   File moduleFile
-  def srcDir
+  File srcDir
 
 
   Course(name) {
@@ -75,15 +75,33 @@ class Course {
   void build() {
     buildSolutionsFile()
     buildExercisesFile()
+    buildSlides()
   }
 
 
   void buildSlides() {
-
+    buildModuleListFile()
+    modules.eachWithIndex { module, moduleNumber ->
+      buildModuleSlideFile(module, moduleNumber)
+    }
   }
 
 
-  void buildModuleFile() {
+  File buildModuleSlideFile(Module module, int moduleNumber) {
+    File slides = new File("${srcDir.absolutePath}/slides-${moduleNumber}.adoc")
+    slides.withWriter { writer ->
+      writer.println "= ${module.name}"
+      writer.println convertSlideHeaderToAsciidoc()
+      writer.println ''
+      module.vertices.each { vertex ->
+        writer.println vertex.slideIncludeAsciidoc()
+      }
+    }
+    return slides
+  }
+
+
+  void buildModuleListFile() {
     moduleFile.withWriter { file ->
       modules.eachWithIndex { module, moduleNumber ->
         file.println module.vertexListAsciidoc(moduleNumber + 1)
@@ -113,5 +131,21 @@ class Course {
         }
       }
     }
+  }
+
+
+  def convertSlideHeaderToAsciidoc() {
+    convertHeaderMapToAsciidoc(slideHeader)
+  }
+
+
+  def convertExerciseHeaderToAsciidoc() {
+    convertHeaderMapToAsciidoc(exerciseHeader)
+  }
+
+
+  def convertHeaderMapToAsciidoc(header) {
+    SortedMap map = new TreeMap(header)
+    map.collect { key, value -> ":${key}: ${value}".trim() }.join('\n')
   }
 }
