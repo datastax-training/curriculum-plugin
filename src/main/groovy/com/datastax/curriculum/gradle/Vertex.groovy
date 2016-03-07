@@ -94,20 +94,4 @@ include::${solutionFile.absolutePath}[]
   String getVertexRoot() {
     "${curriculumRoot.absolutePath}/${vertexPath}"
   }
-
-
-  @Override
-  public String toString() {
-    return "Vertex{" +
-            "vertexPath='" + vertexPath + '\'' +
-            ", curriculumRoot=" + curriculumRoot +
-            ", includes=" + includes +
-            ", slides=" + slides +
-            ", objectives=" + objectives +
-            ", exercises=" + exercises +
-            ", solutions=" + solutions +
-            ", javaScript=" + javaScript +
-            ", images=" + images +
-            '}';
-  }
 }

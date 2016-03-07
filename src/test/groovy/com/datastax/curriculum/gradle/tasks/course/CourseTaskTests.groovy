@@ -32,16 +32,4 @@ class CourseTaskTests {
   void testCourseDependencies() {
 
   }
-
-
-  @Test
-  void testVertexList() {
-    def vertexList = courseTask.buildVertexList(modules)
-    assertEquals(4, vertexList.size())
-
-    assertEquals('graph/graph-definition/property-graph', vertexList[0])
-    assertEquals('graph/graph-traversal/gremlin-language', vertexList[1])
-    assertEquals('graph/graph-traversal/simple-traversal', vertexList[2])
-    assertEquals('graph/graph-traversal/mutating-traversal', vertexList[3])
-  }
 }
