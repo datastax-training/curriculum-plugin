@@ -73,7 +73,7 @@ class Module {
 
 
   File combineJavaScript(File destDir, int moduleNumber) {
-    File js = new File(destDir, "module-${moduleNumber}.js")
+    File js = new File(destDir, moduleJavaScriptFilename(moduleNumber))
     js.withWriter { writer ->
       vertices.each { vertex ->
         if(vertex.javaScript.exists()) {
@@ -83,6 +83,11 @@ class Module {
     }
 
     return js
+  }
+
+
+  String moduleJavaScriptFilename(int moduleNumber) {
+    "module-${moduleNumber}.js"
   }
 
 }

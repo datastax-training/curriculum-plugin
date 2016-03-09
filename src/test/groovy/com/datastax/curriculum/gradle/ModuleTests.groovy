@@ -92,4 +92,11 @@ var test = 'Fake JS for Mutating Traversal vertex. Do not remove.'
     def combinedJavaScript = traversals.combineJavaScript(destDir, moduleNumber)
     assertEquals(content, combinedJavaScript.text)
   }
+
+
+  @Test
+  void testModuleJavaScriptFilename() {
+    int moduleNumber = 3
+    assertEquals('module-3.js', internals.moduleJavaScriptFilename(moduleNumber))
+  }
 }

@@ -3,10 +3,6 @@ package com.datastax.curriculum.gradle
 import org.junit.Before
 import org.junit.Test
 
-import java.nio.file.FileSystems
-import java.nio.file.Files
-import java.nio.file.Path
-
 import static org.junit.Assert.assertEquals
 import static org.junit.Assert.assertNotNull
 import static org.junit.Assert.assertTrue
@@ -190,7 +186,28 @@ include::${curriculumRoot.absolutePath}/graph/graph-traversal/mutating-traversal
 
   @Test
   void testJavaScriptCombining() {
+    def jsDir
+    def buildDir = File.createTempDir()
 
+    course.combineJavaScript(buildDir)
+
+    jsDir = new File(buildDir, 'js')
+
+    def module1JS = new File(jsDir, "module-1.js")
+    def module2JS = new File(jsDir, "module-2.js")
+    def module3JS = new File(jsDir, "module-3.js")
+
+    assertTrue(module1JS.exists())
+    assertTrue(module1JS.size() > 0)
+    assertTrue(module2JS.exists())
+    assertEquals(0, module2JS.size())
+    assertTrue(module3JS.exists())
+
+    def content = """\
+var test = 'Fake JS for Gremlin Language vertex. Do not remove.'
+var test = 'Fake JS for Mutating Traversal vertex. Do not remove.'
+"""
+    assertEquals(content as String, module3JS.text)
   }
 
 

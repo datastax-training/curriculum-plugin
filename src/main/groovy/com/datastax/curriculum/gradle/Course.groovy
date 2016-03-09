@@ -1,5 +1,10 @@
 package com.datastax.curriculum.gradle
 
+import java.nio.file.FileSystems
+import java.nio.file.FileSystem
+import java.nio.file.Files
+import java.nio.file.Path
+
 
 class Course {
   String name
@@ -79,6 +84,7 @@ class Course {
     buildExercisesFile()
     buildSlides()
     copyVertexImagesTo(buildDir)
+    combineJavaScript(buildDir)
   }
 
 
@@ -94,6 +100,7 @@ class Course {
     File slides = new File("${srcDir.absolutePath}/slides-${moduleNumber}.adoc")
     slides.withWriter { writer ->
       writer.println "= ${module.name}"
+      slideHeader.customjs = "js/${module.moduleJavaScriptFilename(moduleNumber)}"
       writer.println convertSlideHeaderToAsciidoc()
       writer.println ''
       module.vertices.each { vertex ->
@@ -153,11 +160,21 @@ class Course {
   }
 
 
-  void copyVertexImagesTo(File destinationRoot) {
+  void copyVertexImagesTo(File buildDir) {
     modules.each { module ->
       module.vertices.each { vertex ->
-        vertex.copyImagesTo(destinationRoot)
+        vertex.copyImagesTo(buildDir)
       }
+    }
+  }
+
+
+  void combineJavaScript(File buildDir) {
+    FileSystem fileSystem = FileSystems.default
+    Path jsPath = fileSystem.getPath(buildDir.absolutePath, 'js')
+    Files.createDirectories(jsPath)
+    modules.eachWithIndex { module, moduleNumber ->
+      module.combineJavaScript(jsPath.toFile(), moduleNumber + 1)
     }
   }
 }
