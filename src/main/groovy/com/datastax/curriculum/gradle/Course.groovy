@@ -148,4 +148,13 @@ class Course {
     SortedMap map = new TreeMap(header)
     map.collect { key, value -> ":${key}: ${value}".trim() }.join('\n')
   }
+
+
+  void copyVertexImagesTo(destinationRoot) {
+    modules.each { module ->
+      module.vertices.each { vertex ->
+        vertex.copyImagesTo(destinationRoot)
+      }
+    }
+  }
 }

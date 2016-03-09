@@ -137,12 +137,17 @@ include::${curriculumRoot.absolutePath}/${vnodeVertexPath}/src/includes.adoc[]
 
   @Test
   void testVertexDependencies() {
-    def deps = simpleTraversal.dependencies
+    def deps
+
+    deps = vnodes.dependencies
     assertNotNull(deps)
     assertNotNull(deps.javaScript)
     assertNotNull(deps.images)
     assertNotNull(deps.slides)
     assertNotNull(deps.docs)
+    assertEquals(1, deps.docs.size())
+    assertEquals(2, deps.slides.size())
+    assertEquals(12, deps.images.size())
   }
 
 
@@ -158,5 +163,14 @@ include::${curriculumRoot.absolutePath}/${vnodeVertexPath}/src/includes.adoc[]
     files = simpleTraversal.slideImageFiles
     assertNotNull(files)
     assertEquals(7, files.size())
+  }
+
+
+  @Test
+  void testImageCopying() {
+    def destDir = vnodes.copyImagesTo(File.createTempDir())
+    assertNotNull(destDir)
+    assertTrue(destDir instanceof File)
+    assertEquals(vnodes.images.size(), destDir.listFiles().size())
   }
 }

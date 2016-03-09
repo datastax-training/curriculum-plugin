@@ -1,5 +1,11 @@
 package com.datastax.curriculum.gradle
 
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.FileSystem
+import java.nio.file.FileSystems
+import java.nio.file.StandardCopyOption
+
 
 class Vertex {
   String vertexPath
@@ -36,7 +42,7 @@ class Vertex {
     solutions = new File(vertexDir, 'src/solutions.adoc')
     javaScript = new File(vertexDir, 'js/animation.js')
     imageDir = new File(vertexDir, 'images')
-    images = imageDir.listFiles()
+    images = slideImageFiles
   }
 
 
@@ -107,11 +113,11 @@ include::${solutionFile.absolutePath}[]
     def files = []
     File slidesDir = new File(vertexDir.absoluteFile, 'src/slides')
 
-    files.addAll slidesDir.listFiles(new FilenameFilter() {
+    slidesDir.listFiles(new FilenameFilter() {
       boolean accept(File dir, String name) {
         name.endsWith('.adoc')
       }
-    })
+    }).each { files << it }
     files << slides
     files << includes
   }
@@ -130,7 +136,25 @@ include::${solutionFile.absolutePath}[]
     def deps = [:]
     deps.javaScript = javaScript
     deps.slides = slideAsciidocFiles
-    deps.docs = [ exercises, solutions, objectives ]
+    deps.docs = [exercises, solutions, objectives].findAll { it.exists() }
     deps.images = images
+
+    return deps
+  }
+
+
+  File copyImagesTo(File destinationRoot) {
+    FileSystem fileSystem = FileSystems.getDefault()
+    Path destDir = fileSystem.getPath(destinationRoot.absolutePath, 'images', vertexPath)
+    Path destPath
+    Files.createDirectories(destDir)
+    images.each { file ->
+      Path sourcePath = fileSystem.getPath(file.absolutePath)
+      destPath = fileSystem.getPath(destDir.toString(),
+                                    sourcePath.fileName.toString())
+      Files.copy(sourcePath, destPath, StandardCopyOption.REPLACE_EXISTING)
+    }
+
+    return destDir?.toFile()
   }
 }

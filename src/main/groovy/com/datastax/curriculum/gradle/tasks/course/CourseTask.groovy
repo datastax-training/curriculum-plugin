@@ -1,6 +1,8 @@
 
 package com.datastax.curriculum.gradle.tasks.course
 
+import com.datastax.curriculum.gradle.Course
+import com.datastax.curriculum.gradle.Module
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -10,30 +12,32 @@ class CourseTask extends DefaultTask {
   String title
   String baseURL = 'slides.html'
 
-  def vertexFile
   List<String> vertexList
   List<Map> modules
 
   def curriculumRootDir
   def srcDir = "${project.projectDir}/src"
-  def exercisesFile = "${srcDir}/exercise-list.adoc"
-  def solutionsFile = "${srcDir}/solution-list.adoc"
-  def vertexSolutionsFile = "${srcDir}/solutions.adoc"
-  def courseModuleFile = "${srcDir}/module-list.adoc"
-  def javaScriptFile = "${project.buildDir}/js/course.js"
 
   Map<String, String> slideHeader = [:]
 
-  def builders = []
+  private Course course
 
 
   @TaskAction
   def courseAction() {
     slideHeader.customjs = 'js/course.js'
-    buildVertexList(modules)
-    builders.each { it.build() }
 
-    copyImagesAndResources()
+    course = new Course(title)
+                  .withCurriculumRoot(curriculumRoot)
+                  .withSrcDir(srcDir)
+    modules.each { moduleDescription ->
+      def module = new Module(moduleDescription.name)
+                        .withCurriculumRoot(curriculumRoot)
+                        .withModuleFile(moduleDescription.vertices)
+      course.addModule(module)
+    }
+
+    course.build()
   }
 
 
@@ -73,12 +77,11 @@ class CourseTask extends DefaultTask {
     }
   }
 
-
-  def copyVertexImages() {
-    vertexList.each { vertex ->
-      project.copy {
-        from "${curriculumRootDir}/${vertex}/images"
-        into "${project.buildDir}/images/${vertex}"
+//project.file("${project.buildDir}/images/${vertex}")
+  def copyVertexImages(File destinationDir) {
+    course.modules.each { module ->
+      module.vertices.each { vertex ->
+        vertex.copyImagesTo(destinationDir)
       }
     }
   }
