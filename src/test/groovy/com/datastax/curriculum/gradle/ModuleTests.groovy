@@ -79,4 +79,17 @@ class ModuleTests {
 
     assertEquals(content as String, traversals.vertexListAsciidoc(moduleNumber))
   }
+
+
+  @Test
+  void testCombinedJavaScript() {
+    File destDir = File.createTempDir()
+    int moduleNumber = 4
+    def content = """\
+var test = 'Fake JS for Gremlin Language vertex. Do not remove.'
+var test = 'Fake JS for Mutating Traversal vertex. Do not remove.'
+"""
+    def combinedJavaScript = traversals.combineJavaScript(destDir, moduleNumber)
+    assertEquals(content, combinedJavaScript.text)
+  }
 }

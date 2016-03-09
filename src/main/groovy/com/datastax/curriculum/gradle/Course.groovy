@@ -1,5 +1,6 @@
 package com.datastax.curriculum.gradle
 
+
 class Course {
   String name
   List<Module> modules = []
@@ -10,6 +11,7 @@ class Course {
   File solutionFile
   File moduleFile
   File srcDir
+  File buildDir
 
 
   Course(name) {
@@ -72,10 +74,11 @@ class Course {
   }
 
 
-  void build() {
+  void buildTo(File buildDir) {
     buildSolutionsFile()
     buildExercisesFile()
     buildSlides()
+    copyVertexImagesTo(buildDir)
   }
 
 
@@ -150,7 +153,7 @@ class Course {
   }
 
 
-  void copyVertexImagesTo(destinationRoot) {
+  void copyVertexImagesTo(File destinationRoot) {
     modules.each { module ->
       module.vertices.each { vertex ->
         vertex.copyImagesTo(destinationRoot)

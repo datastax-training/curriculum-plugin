@@ -14,6 +14,7 @@ plugins {
   id 'idea'
   id 'maven'
   id 'com.jfrog.artifactory' version '3.1.1'
+  id 'jacoco'
 }
 
 apply plugin: "com.gradle.plugin-publish"

@@ -37,16 +37,7 @@ class CourseTask extends DefaultTask {
       course.addModule(module)
     }
 
-    course.build()
-  }
-
-
-  def copyImagesAndResources() {
-    def file = project.file(javaScriptFile)
-    def fullPath = file.absolutePath
-    project.file(fullPath[0..(fullPath.lastIndexOf(File.separator))]).mkdirs()
-    combineVertexJavaScript(file)
-    copyVertexImages()
+    course.buildTo(project.buildDir)
   }
 
 

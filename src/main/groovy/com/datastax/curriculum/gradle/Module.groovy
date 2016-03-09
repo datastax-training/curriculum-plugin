@@ -71,4 +71,18 @@ class Module {
     return writer.toString()
   }
 
+
+  File combineJavaScript(File destDir, int moduleNumber) {
+    File js = new File(destDir, "module-${moduleNumber}.js")
+    js.withWriter { writer ->
+      vertices.each { vertex ->
+        if(vertex.javaScript.exists()) {
+          writer.println vertex.javaScript.text
+        }
+      }
+    }
+
+    return js
+  }
+
 }

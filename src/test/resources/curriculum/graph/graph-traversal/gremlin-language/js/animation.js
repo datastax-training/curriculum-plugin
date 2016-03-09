@@ -1,0 +1,1 @@
+var test = 'Fake JS for Gremlin Language vertex. Do not remove.'

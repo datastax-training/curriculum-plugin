@@ -3,7 +3,13 @@ package com.datastax.curriculum.gradle
 import org.junit.Before
 import org.junit.Test
 
+import java.nio.file.FileSystems
+import java.nio.file.Files
+import java.nio.file.Path
+
 import static org.junit.Assert.assertEquals
+import static org.junit.Assert.assertNotNull
+import static org.junit.Assert.assertTrue
 
 
 class CourseTests {
@@ -112,6 +118,14 @@ include::${curriculumRoot.absolutePath}/cassandra/internals/distributed-architec
 
 
   @Test
+  void testExerciseHeader() {
+    def content = """\
+:backend: html5"""
+    assertEquals(content, course.convertExerciseHeaderToAsciidoc())
+  }
+
+
+  @Test
   void testModuleSlideFile() {
     def content = """\
 = Graph Traversals
@@ -143,4 +157,41 @@ include::${curriculumRoot.absolutePath}/graph/graph-traversal/mutating-traversal
     def file = emptyCourse.buildModuleSlideFile(traversals, 1)
     assertEquals(content as String, file.text)
   }
+
+
+  @Test
+  void testCopyVertexImages() {
+    def destDir = File.createTempDir()
+
+    // Get the course's opinion of how many files it has
+    def imageCount = 0
+    course.modules.each { module ->
+      module.vertices.each { vertex ->
+        imageCount += vertex.images.size()
+      }
+    }
+
+    // As the course to copy its images to a build dir
+    course.copyVertexImagesTo(destDir)
+
+    // See how many files the course actually copied
+    def copiedFiles = []
+    destDir.traverse { file ->
+      if(file.name[-4..-1] in ['.jpg', '.png', '.svg']) {
+        copiedFiles << file
+      }
+    }
+
+    assertNotNull(destDir)
+    assertTrue(destDir instanceof File)
+    assertEquals(imageCount, copiedFiles.size())
+  }
+
+
+  @Test
+  void testJavaScriptCombining() {
+
+  }
+
+
 }
