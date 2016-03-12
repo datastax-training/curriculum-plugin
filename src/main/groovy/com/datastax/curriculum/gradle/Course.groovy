@@ -125,7 +125,9 @@ class Course {
     solutionFile.withWriter { file ->
       modules.each { module ->
         module.vertices.each { vertex ->
-          file.println vertex.solutionIncludeAsciidoc(solutionNumber++)
+          if(vertex.solutionFile.exists()) {
+            file.println vertex.solutionIncludeAsciidoc(solutionNumber++)
+          }
         }
       }
     }
@@ -137,7 +139,9 @@ class Course {
     exerciseFile.withWriter { file ->
       modules.each { module ->
         module.vertices.each { vertex ->
-          file.println vertex.exerciseIncludeAsciidoc(exerciseNumber++)
+          if(vertex.exerciseFile.exists()) {
+            file.println vertex.exerciseIncludeAsciidoc(exerciseNumber++)
+          }
         }
       }
     }

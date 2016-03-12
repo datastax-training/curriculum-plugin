@@ -42,13 +42,19 @@ class CourseTests {
 include::${curriculumRoot.absolutePath}/graph/graph-definition/property-graph/src/solutions.adoc[]
 
 :solution_number: 2
-:image_path: images/cassandra/internals/distributed-architecture/vnodes
+:image_path: images/graph/graph-traversal/simple-traversal
 [[SOLUTION-2]]
-include::${curriculumRoot.absolutePath}/cassandra/internals/distributed-architecture/vnodes/src/solutions.adoc[]
+include::${curriculumRoot.absolutePath}/graph/graph-traversal/simple-traversal/src/solutions.adoc[]
+
+:solution_number: 3
+:image_path: images/graph/graph-traversal/mutating-traversal
+[[SOLUTION-3]]
+include::${curriculumRoot.absolutePath}/graph/graph-traversal/mutating-traversal/src/solutions.adoc[]
 
 """
     emptyCourse.addModule(graphIntro)
     emptyCourse.addModule(internals)
+    emptyCourse.addModule(traversals)
     emptyCourse.srcDir = 'src/test/resources/curriculum/courses/test-course/src'
     emptyCourse.buildSolutionFile()
     assertEquals(solutionFileText as String, emptyCourse.solutionFile.text)
@@ -64,13 +70,14 @@ include::${curriculumRoot.absolutePath}/cassandra/internals/distributed-architec
 include::${curriculumRoot.absolutePath}/graph/graph-definition/property-graph/src/exercises.adoc[]
 
 :exercise_number: 2
-:image_path: images/cassandra/internals/distributed-architecture/vnodes
+:image_path: images/graph/graph-traversal/simple-traversal
 [[EXERCISE-2]]
-include::${curriculumRoot.absolutePath}/cassandra/internals/distributed-architecture/vnodes/src/exercises.adoc[]
+include::${curriculumRoot.absolutePath}/graph/graph-traversal/simple-traversal/src/exercises.adoc[]
 
 """
     emptyCourse.addModule(graphIntro)
     emptyCourse.addModule(internals)
+    emptyCourse.addModule(traversals)
     emptyCourse.srcDir = 'src/test/resources/curriculum/courses/test-course/src'
     emptyCourse.buildExerciseFile()
     assertEquals(exerciseFileText as String, emptyCourse.exerciseFile.text)
