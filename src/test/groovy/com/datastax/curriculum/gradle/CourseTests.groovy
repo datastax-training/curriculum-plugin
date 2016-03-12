@@ -36,10 +36,16 @@ class CourseTests {
   @Test
   void testBuildCompleteSolutionFile() {
     def solutionFileText = """\
+=== Graph Introduction
+
 :solution_number: 1
 :image_path: images/graph/graph-definition/property-graph
 [[SOLUTION-1]]
 include::${curriculumRoot.absolutePath}/graph/graph-definition/property-graph/src/solutions.adoc[]
+
+=== Internals
+
+=== Graph Traversals
 
 :solution_number: 2
 :image_path: images/graph/graph-traversal/simple-traversal
@@ -64,10 +70,16 @@ include::${curriculumRoot.absolutePath}/graph/graph-traversal/mutating-traversal
   @Test
   void testBuildCompleteExerciseFile() {
     def exerciseFileText = """\
+=== Graph Introduction
+
 :exercise_number: 1
 :image_path: images/graph/graph-definition/property-graph
 [[EXERCISE-1]]
 include::${curriculumRoot.absolutePath}/graph/graph-definition/property-graph/src/exercises.adoc[]
+
+=== Internals
+
+=== Graph Traversals
 
 :exercise_number: 2
 :image_path: images/graph/graph-traversal/simple-traversal

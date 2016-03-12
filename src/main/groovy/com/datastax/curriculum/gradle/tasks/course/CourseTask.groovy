@@ -16,7 +16,6 @@ class CourseTask extends DefaultTask {
   def curriculumRootDir
   def srcDir = "${project.projectDir}/src"
 
-
   Course course
 
 

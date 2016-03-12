@@ -1,3 +1,3 @@
-== Simple Traversal Solutions
+==== Simple Traversal Solutions
 
 This is how a simple traversal works:

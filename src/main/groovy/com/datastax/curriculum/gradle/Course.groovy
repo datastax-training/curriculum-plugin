@@ -124,6 +124,8 @@ class Course {
     def solutionNumber = 1
     solutionFile.withWriter { file ->
       modules.each { module ->
+        file.println "=== ${module.name}"
+        file.println ''
         module.vertices.each { vertex ->
           if(vertex.solutionFile.exists()) {
             file.println vertex.solutionIncludeAsciidoc(solutionNumber++)
@@ -138,6 +140,8 @@ class Course {
     def exerciseNumber = 1
     exerciseFile.withWriter { file ->
       modules.each { module ->
+        file.println "=== ${module.name}"
+        file.println ''
         module.vertices.each { vertex ->
           if(vertex.exerciseFile.exists()) {
             file.println vertex.exerciseIncludeAsciidoc(exerciseNumber++)
