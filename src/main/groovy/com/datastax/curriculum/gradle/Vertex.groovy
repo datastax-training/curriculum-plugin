@@ -16,9 +16,12 @@ class Vertex {
   File objectives
   File exercises
   File solutions
-  File javaScript
+  List<File> javaScript = []
   File imageDir
+  File javaScriptDir
   List<File> images = []
+
+  private FileSystem fileSystem = FileSystems.getDefault()
 
 
   Vertex(vertexPath) {
@@ -40,7 +43,8 @@ class Vertex {
     objectives = new File(vertexDir, 'src/objectives.adoc')
     exercises = new File(vertexDir, 'src/exercises.adoc')
     solutions = new File(vertexDir, 'src/solutions.adoc')
-    javaScript = new File(vertexDir, 'js/animation.js')
+    javaScriptDir = new File(vertexDir, 'js')
+    javaScript = javaScriptFiles
     imageDir = new File(vertexDir, 'images')
     images = slideImageFiles
   }
@@ -132,6 +136,15 @@ include::${solutionFile.absolutePath}[]
   }
 
 
+  def getJavaScriptFiles() {
+    javaScriptDir.listFiles(new FilenameFilter() {
+      boolean accept(File dir, String name) {
+        name[-3..-1] in ['.js']
+      }
+    })
+  }
+
+
   Map getDependencies() {
     def deps = [:]
     deps.javaScript = javaScript
@@ -144,7 +157,6 @@ include::${solutionFile.absolutePath}[]
 
 
   File copyImagesTo(File destinationRoot) {
-    FileSystem fileSystem = FileSystems.getDefault()
     Path destDir = fileSystem.getPath(destinationRoot.absolutePath, 'images', vertexPath)
     Path destPath
     Files.createDirectories(destDir)
@@ -155,6 +167,6 @@ include::${solutionFile.absolutePath}[]
       Files.copy(sourcePath, destPath, StandardCopyOption.REPLACE_EXISTING)
     }
 
-    return destDir?.toFile()
+    return destDir.toFile()
   }
 }

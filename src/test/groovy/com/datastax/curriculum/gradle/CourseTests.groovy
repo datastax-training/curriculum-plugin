@@ -127,6 +127,7 @@ include::${curriculumRoot.absolutePath}/cassandra/internals/distributed-architec
 = Graph Traversals
 :animation:
 :backend: deckjs
+:customjs: js/module-1.js
 :deckjs_theme: datastax
 :goto:
 :icons: font
@@ -204,7 +205,7 @@ include::${curriculumRoot.absolutePath}/graph/graph-traversal/mutating-traversal
     assertTrue(module3JS.exists())
 
     def content = """\
-var test = 'Fake JS for Gremlin Language vertex. Do not remove.'
+var test = 'Fake JS for Gremlin Language vertex. ${curriculumRoot.absolutePath}/graph/graph-traversal/gremlin-language/images/image.svg should be substituted.'
 var test = 'Fake JS for Mutating Traversal vertex. Do not remove.'
 """
     assertEquals(content as String, module3JS.text)

@@ -1,1 +1,0 @@
-var test = 'Should not show up in munged JS content. Do not remove this file.'

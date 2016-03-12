@@ -2,7 +2,6 @@ package com.datastax.curriculum.gradle
 
 import org.junit.Before
 import org.junit.Test
-import org.junit.validator.TestClassValidator
 
 import static org.junit.Assert.*
 
@@ -86,11 +85,19 @@ class ModuleTests {
     File destDir = File.createTempDir()
     int moduleNumber = 4
     def content = """\
-var test = 'Fake JS for Gremlin Language vertex. Do not remove.'
+var test = 'Fake JS for Gremlin Language vertex. ${curriculumRoot.absolutePath}/graph/graph-traversal/gremlin-language/images/image.svg should be substituted.'
 var test = 'Fake JS for Mutating Traversal vertex. Do not remove.'
 """
     def combinedJavaScript = traversals.combineJavaScript(destDir, moduleNumber)
-    assertEquals(content, combinedJavaScript.text)
+    assertEquals(content as String, combinedJavaScript.text)
+  }
+
+
+  @Test
+  void textExpandJavaScriptMacros() {
+    def input = 'var test = \'Fake JS for Gremlin Language vertex. ${image_path}/js/image.svg should be substituted.\''
+    def output = 'var test = \'Fake JS for Gremlin Language vertex. monkey/js/image.svg should be substituted.\''
+    assertEquals(output, traversals.expandJavaScriptMacros(input, [image_path: 'monkey']))
   }
 
 

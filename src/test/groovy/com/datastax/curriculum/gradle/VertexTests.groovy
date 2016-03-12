@@ -44,7 +44,7 @@ class VertexTests {
     assertNotNull(vnodes.vertexPath)
     assertEquals(12, vnodes.images.size())
     assertTrue(vnodes.includes instanceof File)
-    assertTrue(vnodes.javaScript instanceof File)
+    assertTrue(vnodes.javaScript instanceof List<File>)
     assertTrue(vnodes.exercises instanceof File)
     assertTrue(vnodes.solutions instanceof File)
     assertTrue(vnodes.slides instanceof File)
@@ -52,7 +52,10 @@ class VertexTests {
     assertEquals('curriculum/cassandra/internals/distributed-architecture/vnodes/src/exercises.adoc', vnodes.exercises.absolutePath[-81..-1])
     assertEquals('curriculum/cassandra/internals/distributed-architecture/vnodes/src/solutions.adoc', vnodes.solutions.absolutePath[-81..-1])
     assertEquals('curriculum/cassandra/internals/distributed-architecture/vnodes/src/includes.adoc', vnodes.includes.absolutePath[-80..-1])
-    assertEquals('curriculum/cassandra/internals/distributed-architecture/vnodes/js/animation.js', vnodes.javaScript.absolutePath[-78..-1])
+    def jsFiles = vnodes.javaScript.collect { it.absolutePath }.sort()
+    assertEquals('curriculum/cassandra/internals/distributed-architecture/vnodes/js/animation.js', jsFiles[0][-78..-1])
+    assertEquals('curriculum/cassandra/internals/distributed-architecture/vnodes/js/other-1.js', jsFiles[1][-76..-1])
+    assertEquals('curriculum/cassandra/internals/distributed-architecture/vnodes/js/other-2.js', jsFiles[2][-76..-1])
     assertEquals('cassandra/internals/distributed-architecture/vnodes', vnodes.vertexPath)
     def vertexImages = vnodes.images.collect { it.name }.sort()
     imageFilenames.sort().eachWithIndex { filename, index ->
@@ -163,6 +166,15 @@ include::${curriculumRoot.absolutePath}/${vnodeVertexPath}/src/includes.adoc[]
     files = simpleTraversal.slideImageFiles
     assertNotNull(files)
     assertEquals(7, files.size())
+  }
+
+
+  @Test
+  void testJavaScriptFileListing() {
+    def files
+    files = vnodes.javaScript
+    assertNotNull(files)
+    assertEquals(3, files.size())
   }
 
 
