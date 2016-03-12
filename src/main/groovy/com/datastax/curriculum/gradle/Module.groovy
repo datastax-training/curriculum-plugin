@@ -81,7 +81,7 @@ class Module {
     File js = new File(destDir, moduleJavaScriptFilename(moduleNumber))
     js.withWriter { writer ->
       vertices.each { vertex ->
-        def parms = [ image_path: vertex.imageDir.absolutePath ]
+        def parms = [ image_path: "images/${vertex.vertexPath}" ]
         vertex.javaScript.each { jsFile ->
           if(jsFile.exists()) {
             writer.println expandJavaScriptMacros(jsFile.text, parms)

@@ -10,17 +10,14 @@ import org.gradle.api.tasks.TaskAction
 class CourseTask extends DefaultTask {
 
   String title
-  String baseURL = 'slides.html'
-
-  List<String> vertexList
-  List<Map> modules
+  Map<String, String> slideHeader = [:]
+  List<Map<String, String>> modules
 
   def curriculumRootDir
   def srcDir = "${project.projectDir}/src"
 
-  Map<String, String> slideHeader = [:]
 
-  private Course course
+  Course course
 
 
   @TaskAction
@@ -28,52 +25,19 @@ class CourseTask extends DefaultTask {
     slideHeader.customjs = 'js/course.js'
 
     course = new Course(title)
-                  .withCurriculumRoot(curriculumRoot)
+                  .withCurriculumRoot(curriculumRootDir)
                   .withSrcDir(srcDir)
+    course.slideHeader = slideHeader
+
     modules.each { moduleDescription ->
+      def moduleFilename = "${project.projectDir}/${moduleDescription.vertices}"
       def module = new Module(moduleDescription.name)
-                        .withCurriculumRoot(curriculumRoot)
-                        .withModuleFile(moduleDescription.vertices)
+                        .withCurriculumRoot(curriculumRootDir)
+                        .withModuleFile(moduleFilename)
       course.addModule(module)
     }
 
     course.buildTo(project.buildDir)
   }
 
-
-  def combineVertexJavaScript(File combinedJSFile) {
-    def tempDir = File.createTempDir()
-
-    // Copy vertex JS files to temp dir, expanding image_path macros
-    vertexList.each { vertex ->
-      project.copy {
-        from("${curriculumRootDir}/${vertex}/js") {
-          include '**/*.js'
-        }
-        into("${tempDir}/${vertex}/js")
-        expand(['image_path': "images/${vertex}"])
-      }
-    }
-
-    // Munge all vertex JS files into one big JS file
-    combinedJSFile.withWriter { writer ->
-      vertexList.each { vertex ->
-        project.fileTree("${tempDir}/${vertex}/js").each { file ->
-          file.withReader { reader ->
-            writer.write(reader.text)
-          }
-        }
-      }
-      writer.flush()
-    }
-  }
-
-//project.file("${project.buildDir}/images/${vertex}")
-  def copyVertexImages(File destinationDir) {
-    course.modules.each { module ->
-      module.vertices.each { vertex ->
-        vertex.copyImagesTo(destinationDir)
-      }
-    }
-  }
 }

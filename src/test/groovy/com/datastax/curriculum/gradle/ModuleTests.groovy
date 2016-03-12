@@ -85,7 +85,7 @@ class ModuleTests {
     File destDir = File.createTempDir()
     int moduleNumber = 4
     def content = """\
-var test = 'Fake JS for Gremlin Language vertex. ${curriculumRoot.absolutePath}/graph/graph-traversal/gremlin-language/images/image.svg should be substituted.'
+var test = 'Fake JS for Gremlin Language vertex. images/graph/graph-traversal/gremlin-language/image.svg should be substituted.'
 var test = 'Fake JS for Mutating Traversal vertex. Do not remove.'
 """
     def combinedJavaScript = traversals.combineJavaScript(destDir, moduleNumber)

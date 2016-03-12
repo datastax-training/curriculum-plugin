@@ -80,8 +80,8 @@ class Course {
 
 
   void buildTo(File buildDir) {
-    buildSolutionsFile()
-    buildExercisesFile()
+    buildSolutionFile()
+    buildExerciseFile()
     buildSlides()
     copyVertexImagesTo(buildDir)
     combineJavaScript(buildDir)
@@ -97,10 +97,10 @@ class Course {
 
 
   File buildModuleSlideFile(Module module, int moduleNumber) {
-    File slides = new File("${srcDir.absolutePath}/slides-${moduleNumber}.adoc")
+    File slides = new File("${srcDir.absolutePath}/slides-${moduleNumber + 1}.adoc")
     slides.withWriter { writer ->
       writer.println "= ${module.name}"
-      slideHeader.customjs = "js/${module.moduleJavaScriptFilename(moduleNumber)}"
+      slideHeader.customjs = "js/${module.moduleJavaScriptFilename(moduleNumber + 1)}"
       writer.println convertSlideHeaderToAsciidoc()
       writer.println ''
       module.vertices.each { vertex ->
