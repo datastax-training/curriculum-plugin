@@ -21,22 +21,29 @@ class CourseTask extends DefaultTask {
 
   @TaskAction
   def courseAction() {
-    slideHeader.customjs = 'js/course.js'
+    course.buildTo(project.buildDir)
+  }
 
+
+  void setModules(List<Map<String, String>> modules) {
+    this.modules = modules
+
+    // Doing all this work in a setter is filthy, and I know it.
     course = new Course(title)
-                  .withCurriculumRoot(curriculumRootDir)
-                  .withSrcDir(srcDir)
+            .withCurriculumRoot(curriculumRootDir)
+            .withSrcDir(srcDir)
     course.slideHeader = slideHeader
 
     modules.each { moduleDescription ->
       def moduleFilename = "${project.projectDir}/${moduleDescription.vertices}"
       def module = new Module(moduleDescription.name)
-                        .withCurriculumRoot(curriculumRootDir)
-                        .withModuleFile(moduleFilename)
+              .withCurriculumRoot(curriculumRootDir)
+              .withModuleFile(moduleFilename)
       course.addModule(module)
     }
 
-    course.buildTo(project.buildDir)
+    inputs.files(course.allDependencies)
+    outputs.dir project.buildDir
   }
 
 }

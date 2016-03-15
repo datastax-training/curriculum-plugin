@@ -231,4 +231,45 @@ var test = 'Fake JS for Mutating Traversal vertex. Do not remove.'
   }
 
 
+
+  @Test
+  void testCourseJavaScriptDependencies() {
+    def js = course.javaScriptDependencies
+    assertNotNull(js)
+    assertEquals(5, js.size())
+    js.each { file ->
+      assertEquals('.js', file.name[-3..-1])
+    }
+  }
+
+
+  @Test
+  void testCourseSlideDependencies() {
+    def slides = course.slideDependencies
+    assertNotNull(slides)
+    assertEquals(22, slides.size())
+    slides.each { file ->
+      assertEquals('.adoc', file.name[-5..-1])
+    }
+  }
+
+
+  @Test
+  void testCourseImageDependencies() {
+    def images = course.imageDependencies
+    assertNotNull(images)
+    assertEquals(33, images.size())
+    images.each { file ->
+      assertTrue(file.name[-4..-1] in ['.png', '.jpg', '.svg'])
+    }
+  }
+
+
+  @Test
+  void testCourseDependencies() {
+    def files = course.allDependencies
+    assertNotNull(files)
+    assertEquals(60, files.size())
+  }
+
 }

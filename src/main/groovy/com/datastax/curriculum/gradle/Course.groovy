@@ -185,4 +185,45 @@ class Course {
       module.combineJavaScript(jsPath.toFile(), moduleNumber + 1)
     }
   }
+
+
+  List<File> gatherDependencies(String kind) {
+    List<File> files = []
+
+    modules.each { module ->
+      module.vertices.each { vertex ->
+        if(vertex.dependencies[kind]) {
+          files.addAll(vertex.dependencies[kind] as List)
+        }
+      }
+    }
+
+    return files
+  }
+
+
+  List<File> getImageDependencies() {
+    gatherDependencies('images')
+  }
+
+
+  List<File> getSlideDependencies() {
+    gatherDependencies('slides')
+  }
+
+
+  List<File> getJavaScriptDependencies() {
+    gatherDependencies('javaScript')
+  }
+
+
+  List<File> getAllDependencies() {
+    List<File> files = []
+
+    files.addAll(imageDependencies)
+    files.addAll(slideDependencies)
+    files.addAll(javaScriptDependencies)
+
+    return files
+  }
 }

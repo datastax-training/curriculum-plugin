@@ -131,7 +131,7 @@ include::${curriculumRoot.absolutePath}/${vnodeVertexPath}/src/includes.adoc[]
 
 
   @Test
-  void getAsciidocSlideFiles() {
+  void testAsciidocSlideFiles() {
     def files = simpleTraversal.slideAsciidocFiles
     assertNotNull(files)
     assertEquals(5, files.size())

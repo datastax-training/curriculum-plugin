@@ -1,12 +1,12 @@
 
 package com.datastax.curriculum.gradle
 
-import com.datastax.curriculum.gradle.tasks.SlidesTask
 import com.datastax.curriculum.gradle.tasks.course.CourseTask
 import org.gradle.api.Project
 import org.gradle.api.Plugin
 import org.asciidoctor.gradle.AsciidoctorTask
 import org.gradle.api.plugins.jetty.JettyRun
+import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Zip
 import com.bluepapa32.gradle.plugins.watch.WatchTarget
 
@@ -102,10 +102,51 @@ class CurriculumPlugin
   def createAndConfigureSlidesTasks(project) {
     def task
 
-    task = project.tasks.create('vertexSlides', SlidesTask)
+    project.tasks.create('copyVertexJS', Copy).configure {
+      from(project.projectDir) {
+        include 'js/**/*.js'
+      }
+      into project.buildDir
+      expand(['image_path': 'images'])
+    }
+
+    project.tasks.create('copyVertexDeckJS', Copy).configure {
+      into project.buildDir
+      from(frameworkDir) {
+        include 'deck.js/**'
+      }
+    }
+
+    project.tasks.create('copyVertexDeckExt', Copy).configure {
+      from "${frameworkDir}/deck.ext.js/extensions"
+      into "${buildDeckjsDir}/extensions"
+    }
+
+    project.tasks.create('copyVertexDeckSplit', Copy).configure {
+      from "${frameworkDir}/deck.split.js"
+      into "${buildDeckjsDir}/extensions/split/"
+    }
+
+    project.tasks.create('copyVertexDeckNotes', Copy).configure {
+      from "${frameworkDir}/deck.js-notes"
+      into "${buildDeckjsDir}/extensions/deck.js-notes/"
+    }
+
+
+    project.tasks.create('copySlideFrameworkFiles').configure {
+      dependsOn << [
+                    'copyVertexJS',
+                    'copyVertexDeckJS',
+                    'copyVertexDeckNotes',
+                    'copyVertexDeckSplit',
+                    'copyVertexDeckExt'
+                   ]
+    }
+
+    task = project.tasks.create('vertexSlides', AsciidoctorTask)
     configureSlidesTask(task)
 
-    task = project.tasks.create('courseSlides', SlidesTask)
+    task = project.tasks.create('courseSlides', AsciidoctorTask)
     configureSlidesTask(task)
     task.dependsOn << ['courseResources']
   }
@@ -123,6 +164,136 @@ class CurriculumPlugin
     configureDocsTask(task)
     task.dependsOn << ['courseResources']
   }
+
+
+
+  def configureSlidesTask(task) {
+    task.configure {
+      dependsOn << ['lessc', 'copySlideFrameworkFiles']
+      description = 'Builds the presentation slides only'
+      group = 'Curriculum'
+      backends 'deckjs'
+      options template_dirs: [new File(templateDir, 'haml').absolutePath]
+      attributes 'source-highlighter': 'coderay', idprefix: '', idseparator: '-'
+
+      outputDir project.buildDir
+      separateOutputDirs = false
+      sourceDir "${project.projectDir}/src"
+      sources {
+        // Just take slides.adoc or slides-*.adoc. You'll get the rest via includes
+        include 'slides*.adoc'
+      }
+
+      resources {
+        from(project.projectDir) {
+          include 'images/**/*.svg'
+          include 'images/**/*.jpg'
+          include 'images/**/*.png'
+        }
+      }
+    }
+  }
+
+
+  def configureDocsTask(task) {
+    task.configure {
+      dependsOn << 'lessc'
+      description = 'Builds documents that support the slides'
+      group = 'Curriculum'
+
+      backends 'html5'
+      outputDir project.buildDir
+      separateOutputDirs = false
+      sourceDir "${project.projectDir}/src"
+      sources {
+        exclude 'slides.adoc'
+        exclude 'includes.adoc'
+        exclude 'slides/**/*'
+      }
+
+      options template_dirs : [new File(templateDir, 'haml').absolutePath ]
+      attributes 'source-highlighter': 'coderay',
+              idprefix: '',
+              idseparator: '-',
+              stylesheet: 'styles.css',
+              stylesdir: project.file("${frameworkDir}/asciidoctor-backends/haml/html5/css")
+
+      resources {
+        from(project.projectDir) {
+          include 'images/**/*.svg'
+          include 'images/**/*.jpg'
+          include 'images/**/*.png'
+        }
+      }
+    }
+  }
+
+
+  def createAndConfigureOutlineTask(project) {
+    project.tasks.create('outlinePdf', AsciidoctorTask) {
+      description = 'Creates a PDF of the course outline'
+      group = 'Curriculum'
+
+      outputDir project.buildDir
+      sourceDir "${project.projectDir}/src"
+      sources {
+        include 'outline.adoc'
+      }
+
+      backends 'pdf'
+
+    }
+  }
+
+
+  def createAndConfigureServerTask(project) {
+    def webXmlFile = project.file("${project.buildDir}/tmp/web.xml")
+    project.tasks.create('server', JettyRun).configure {
+      description = 'Runs a local web server on port 8080'
+      group = 'Curriculum'
+      webAppSourceDirectory = project.buildDir
+      contextPath = '/'
+      webXml = webXmlFile
+      doFirst {
+        project.file("${project.buildDir}/tmp").mkdir()
+        webXmlFile.withWriter { writer ->
+          writer.println """\
+<web-app>
+  <servlet>
+    <servlet-name>default</servlet-name>
+    <servlet-class>org.mortbay.jetty.servlet.DefaultServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/</url-pattern>
+  </servlet-mapping>
+</web-app>
+"""
+        }
+      }
+    }
+  }
+
+
+  def configureWatchTask(project) {
+    def watchTask = project.tasks.getByName('watch')
+    watchTask.configure {
+      group = 'Curriculum'
+      description = 'Watch a vertex and run the vertexSlides task when it changes'
+    }
+    WatchTarget vertexTarget = new WatchTarget('vertex')
+    println project.tasks.vertexSlides
+    project.tasks.vertexSlides.inputs.files.each { println it }
+    vertexTarget.files(project.tasks.vertexSlides.inputs.files)
+    vertexTarget.tasks('vertex')
+    watchTask.targets << vertexTarget
+
+    WatchTarget courseTarget = new WatchTarget('course')
+    courseTarget.files(project.tasks.courseResources.inputs.files)
+    courseTarget.tasks('course')
+    watchTask.targets << courseTarget
+  }
+
 
 
   def createAndConfigureSlidesExportTask(project) {
@@ -163,22 +334,22 @@ class CurriculumPlugin
       }
       resources {}
       attributes icons: 'font',
-                 // NOTE sets image_path for images within notes
-                 // FIXME setting image_path needs to be done differently for vertex & course
-                 //image_path: '../images',
-                 // imagesdir is prepended to image target when target is relative
-                 //imagesdir: project.buildDir,
-                 // NOTE sets default slide_path
-                 slide_path: 'slides@',
-                 noheader: true,
-                 nofooter: true,
-                 // NOTE pagenums enables the running header/footer
-                 pagenums: true,
-                 'pdf-stylesdir': this.handoutConfDir.absolutePath,
-                 'pdf-style': 'handout',
-                 'pdf-fontsdir': new File(this.handoutConfDir, 'fonts').absolutePath,
-                 // screenshotsdir must be absolute!
-                 screenshotsdir: pdfWorkingDir.absolutePath
+              // NOTE sets image_path for images within notes
+              // FIXME setting image_path needs to be done differently for vertex & course
+              //image_path: '../images',
+              // imagesdir is prepended to image target when target is relative
+              //imagesdir: project.buildDir,
+              // NOTE sets default slide_path
+              slide_path: 'slides@',
+              noheader: true,
+              nofooter: true,
+              // NOTE pagenums enables the running header/footer
+              pagenums: true,
+              'pdf-stylesdir': this.handoutConfDir.absolutePath,
+              'pdf-style': 'handout',
+              'pdf-fontsdir': new File(this.handoutConfDir, 'fonts').absolutePath,
+              // screenshotsdir must be absolute!
+              screenshotsdir: pdfWorkingDir.absolutePath
       extensions {
         // replaces page breaks (<<<) with anonymous section titles (== !) before parsing structure
         // this version processes attribute entries so attribute references can be used within include directives
@@ -269,7 +440,7 @@ class CurriculumPlugin
             def notesForSection = section.delegate().blocks().find { child ->
               // FIXME we have a non-proxied object here, so call low-level methods
               'open'.equals(child.callMethod('context').toString()) &&
-                  'true'.equals(child.callMethod('has_role?', javaEmbedUtils.javaToRuby(rubyRuntime, 'notes')).toString())
+                      'true'.equals(child.callMethod('has_role?', javaEmbedUtils.javaToRuby(rubyRuntime, 'notes')).toString())
             }
             if (notesForSection != null) {
               // NOTE reparent if we really want to be thorough
@@ -280,7 +451,7 @@ class CurriculumPlugin
               createNoNotesBlock(doc)
             }
           }
-          
+
           def notesByPage = []
 
           // NOTE create page for title slide
@@ -312,168 +483,6 @@ class CurriculumPlugin
         }
       }
     }
-  }
-
-
-  def configureSlidesTask(task) {
-    task.configure {
-      imagePath = 'images'
-
-      frameworkDir = this.frameworkDir
-      buildDeckjsDir = this.buildDeckjsDir
-
-      dependsOn << ['lessc']
-      description = 'Builds the deck.js presentation slides only'
-      group = 'Curriculum'
-
-      outputDir project.buildDir
-      sourceDir "${project.projectDir}/src"
-      sources {
-        include 'slides*.adoc'
-      }
-
-      backends 'deckjs'
-
-      options template_dirs: [new File(templateDir, 'haml').absolutePath]
-
-      attributes 'source-highlighter': 'coderay',
-              idprefix: '',
-              idseparator: '-'
-
-      resources {
-        from(project.projectDir) {
-          include 'images/**/*.svg'
-          include 'images/**/*.jpg'
-          include 'images/**/*.png'
-        }
-        from(frameworkDir) {
-          include 'deck.js/**'
-        }
-      }
-
-      // Necessary to clean up bundling of course materials
-      doLast {
-        project.copy {
-          from "${project.buildDir}/deckjs"
-          into project.buildDir
-        }
-        project.copy {
-          from "${project.buildDir}/asciidoc/deckjs"
-          into project.buildDir
-        }
-        project.delete "${project.buildDir}/deckjs"
-        project.delete "${project.buildDir}/asciidoc"
-      }
-
-    }
-  }
-
-
-  def configureDocsTask(task) {
-    task.configure {
-      dependsOn << 'lessc'
-      description = 'Builds documents that support the slides'
-      group = 'Curriculum'
-
-      outputDir project.buildDir
-      sourceDir "${project.projectDir}/src"
-      sources {
-        exclude 'slides.adoc'
-        exclude 'includes.adoc'
-        exclude 'slides/**/*'
-      }
-
-      backends 'html5'
-
-      resources {
-        from (project.projectDir) {
-          include 'images/**/*.svg'
-          include 'images/**/*.jpg'
-          include 'images/**/*.png'
-        }
-      }
-
-      options template_dirs : [new File(templateDir, 'haml').absolutePath ]
-
-      attributes 'source-highlighter': 'coderay',
-              idprefix: '',
-              idseparator: '-',
-              stylesheet: 'styles.css',
-              stylesdir: project.file("${frameworkDir}/asciidoctor-backends/haml/html5/css")
-
-      // Necessary to clean up bundling of course materials
-      doLast {
-        project.copy {
-          from "${project.buildDir}/html5"
-          into project.buildDir
-        }
-        project.delete "${project.buildDir}/html5"
-      }
-    }
-  }
-
-
-  def createAndConfigureOutlineTask(project) {
-    project.tasks.create('outlinePdf', AsciidoctorTask) {
-      description = 'Creates a PDF of the course outline'
-      group = 'Curriculum'
-
-      outputDir project.buildDir
-      sourceDir "${project.projectDir}/src"
-      sources {
-        include 'outline.adoc'
-      }
-
-      backends 'pdf'
-
-    }
-  }
-
-
-  def createAndConfigureServerTask(project) {
-    def webXmlFile = project.file("${project.buildDir}/tmp/web.xml")
-    project.tasks.create('server', JettyRun).configure {
-      description = 'Runs a local web server on port 8080'
-      group = 'Curriculum'
-      webAppSourceDirectory = project.buildDir
-      contextPath = '/'
-      webXml = webXmlFile
-      doFirst {
-        project.file("${project.buildDir}/tmp").mkdir()
-        webXmlFile.withWriter { writer ->
-          writer.println """\
-<web-app>
-  <servlet>
-    <servlet-name>default</servlet-name>
-    <servlet-class>org.mortbay.jetty.servlet.DefaultServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>default</servlet-name>
-    <url-pattern>/</url-pattern>
-  </servlet-mapping>
-</web-app>
-"""
-        }
-      }
-    }
-  }
-
-
-  def configureWatchTask(project) {
-    def watchTask = project.tasks.getByName('watch')
-    watchTask.configure {
-      group = 'Curriculum'
-      description = 'Watch a vertex and run the vertexSlides task when it changes'
-    }
-    WatchTarget vertexTarget = new WatchTarget('vertex');
-    vertexTarget.files(project.tasks.vertexSlides.inputs.files)
-    vertexTarget.tasks('vertex')
-    watchTask.targets << vertexTarget
-
-    WatchTarget courseTarget = new WatchTarget('course');
-    vertexTarget.files(project.tasks.courseSlides.inputs.files)
-    vertexTarget.tasks('course')
-    watchTask.targets << courseTarget
   }
 
 
