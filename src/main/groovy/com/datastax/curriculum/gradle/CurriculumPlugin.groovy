@@ -241,7 +241,6 @@ class CurriculumPlugin
       }
 
       backends 'pdf'
-
     }
   }
 
@@ -283,7 +282,6 @@ class CurriculumPlugin
     }
     WatchTarget vertexTarget = new WatchTarget('vertex')
     println project.tasks.vertexSlides
-    project.tasks.vertexSlides.inputs.files.each { println it }
     vertexTarget.files(project.tasks.vertexSlides.inputs.files)
     vertexTarget.tasks('vertex')
     watchTask.targets << vertexTarget
