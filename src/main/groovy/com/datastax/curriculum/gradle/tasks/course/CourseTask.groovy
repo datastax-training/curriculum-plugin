@@ -29,16 +29,13 @@ class CourseTask extends DefaultTask {
 
     // Doing all this work in a setter is filthy, and I know it.
     if(definition instanceof File) {
-      println "FILE"
       course = parser.parse(definition.text)
     }
     else if(definition instanceof String ||
             definition instanceof GString) {
-      println "STRING"
       course = parser.parse(definition as String)
     }
     else if(definition instanceof Closure) {
-      println "CLOSURE"
       course = parser.buildCourseFromClosure(definition)
     }
     else {
@@ -46,7 +43,6 @@ class CourseTask extends DefaultTask {
     }
 
     course.withSrcDir(srcDir)
-    println course
 
     inputs.files(course.allDependencies)
     outputs.dir project.buildDir
