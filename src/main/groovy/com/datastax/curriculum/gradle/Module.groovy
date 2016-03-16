@@ -57,10 +57,7 @@ class Module {
 
 
   Module addVertex(vertexPath) {
-    Vertex v = new Vertex(vertexPath)
-    v.curriculumRoot = curriculumRoot
-    vertices << v
-
+    vertices << new Vertex(vertexPath).withCurriculumRoot(curriculumRoot)
     return this
   }
 

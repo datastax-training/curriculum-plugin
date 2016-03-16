@@ -3,18 +3,16 @@ package com.datastax.curriculum.gradle.tasks.course
 
 import com.datastax.curriculum.gradle.Course
 import com.datastax.curriculum.gradle.Module
+import com.datastax.curriculum.gradle.dsl.CourseDefinitionParser
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
 
 class CourseTask extends DefaultTask {
 
-  String title
-  Map<String, String> slideHeader = [:]
-  List<Map<String, String>> modules
-
   def curriculumRootDir
   def srcDir = "${project.projectDir}/src"
+  def definition
 
   Course course
 
@@ -25,22 +23,30 @@ class CourseTask extends DefaultTask {
   }
 
 
-  void setModules(List<Map<String, String>> modules) {
-    this.modules = modules
+  void setDefinition(definition) {
+    CourseDefinitionParser parser = new CourseDefinitionParser(curriculumRootDir)
+    this.definition = definition
 
     // Doing all this work in a setter is filthy, and I know it.
-    course = new Course(title)
-            .withCurriculumRoot(curriculumRootDir)
-            .withSrcDir(srcDir)
-    course.slideHeader = slideHeader
-
-    modules.each { moduleDescription ->
-      def moduleFilename = "${project.projectDir}/${moduleDescription.vertices}"
-      def module = new Module(moduleDescription.name)
-              .withCurriculumRoot(curriculumRootDir)
-              .withModuleFile(moduleFilename)
-      course.addModule(module)
+    if(definition instanceof File) {
+      println "FILE"
+      course = parser.parse(definition.text)
     }
+    else if(definition instanceof String ||
+            definition instanceof GString) {
+      println "STRING"
+      course = parser.parse(definition as String)
+    }
+    else if(definition instanceof Closure) {
+      println "CLOSURE"
+      course = parser.buildCourseFromClosure(definition)
+    }
+    else {
+      throw new RuntimeException("definition?.getClass() is not a supported definition type")
+    }
+
+    course.withSrcDir(srcDir)
+    println course
 
     inputs.files(course.allDependencies)
     outputs.dir project.buildDir
