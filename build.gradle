@@ -51,7 +51,7 @@ dependencies {
   compile gradleApi()
   compile 'com.github.houbie:lesscss-gradle-plugin:1.0.3-less-1.7.0'
   compile 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
-  compile 'com.bluepapa32:gradle-watch-plugin:0.1.5'
+  //compile 'com.bluepapa32:gradle-watch-plugin:0.1.5'
   runtime 'org.asciidoctor:asciidoctorj-groovy-dsl:1.0.0.preview2'
   runtime 'org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.8'
   testCompile 'junit:junit:4.12'

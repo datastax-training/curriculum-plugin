@@ -9,6 +9,8 @@ import org.gradle.api.plugins.jetty.JettyRun
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.bundling.Zip
 import com.bluepapa32.gradle.plugins.watch.WatchTarget
+import com.bluepapa32.gradle.plugins.watch.WatchTask
+
 
 class CurriculumPlugin
   implements Plugin<Project> {
@@ -26,7 +28,7 @@ class CurriculumPlugin
     project.plugins.apply('org.asciidoctor.convert')
     project.plugins.apply('lesscss')
     project.plugins.apply('jetty')
-    project.plugins.apply('com.bluepapa32.watch')
+    //project.plugins.apply('com.bluepapa32.watch')
 
     curriculumRootDir = findProjectRoot(project)
     frameworkDir = new File(curriculumRootDir, 'framework')
@@ -36,6 +38,18 @@ class CurriculumPlugin
     slidesOutputDir = project.buildDir
     pdfWorkingDir = new File(project.buildDir, 'screenshots')
     buildDeckjsDir = new File(slidesOutputDir, 'deck.js')
+
+    project.extensions.watch = project.container(WatchTarget) { name ->
+      project.extensions.create(name, WatchTarget, name)
+    }
+
+    project.task('watchRun') << {
+      println 'Successfully started watcher.'
+    }
+
+    project.task('watch', type: WatchTask) {
+      watch project.watch
+    }
 
     applyTasks(project)
   }
@@ -279,17 +293,23 @@ class CurriculumPlugin
     watchTask.configure {
       group = 'Curriculum'
       description = 'Watch a vertex and run the vertexSlides task when it changes'
-    }
-    WatchTarget vertexTarget = new WatchTarget('vertex')
-    println project.tasks.vertexSlides
-    vertexTarget.files(project.tasks.vertexSlides.inputs.files)
-    vertexTarget.tasks('vertex')
-    watchTask.targets << vertexTarget
 
-    WatchTarget courseTarget = new WatchTarget('course')
-    courseTarget.files(project.tasks.courseResources.inputs.files)
-    courseTarget.tasks('course')
-    watchTask.targets << courseTarget
+      def targets = [
+              [name: 'vertexJS', files: project.tasks.copyVertexJS.inputs.files, task: 'copyVertexJS'],
+              [name: 'vertexDeckJS', files: project.tasks.copyVertexDeckJS.inputs.files, task: 'copyVertexDeckJS'],
+              [name: 'vertexDeckNotes', files: project.tasks.copyVertexDeckNotes.inputs.files, task: 'copyVertexDeckNotes'],
+              [name: 'vertexDeckSplit', files: project.tasks.copyVertexDeckSplit.inputs.files, task: 'copyVertexDeckSplit'],
+              [name: 'vertexDeckExt', files: project.tasks.copyVertexDeckExt.inputs.files, task: 'copyVertexDeckExt'],
+              [name: 'vertexSlides', files: project.tasks.vertexSlides.inputs.files, task: 'vertexSlides']
+      ]
+
+      targets.each { target ->
+        WatchTarget watchTarget = new WatchTarget(target.name)
+        watchTarget.files(target.files)
+        watchTarget.tasks(target.task)
+        watchTask.targets << watchTarget
+      }
+    }
   }
 
 
@@ -481,6 +501,10 @@ class CurriculumPlugin
         }
       }
     }
+  }
+
+  boolean isCourse() {
+
   }
 
 
