@@ -18,10 +18,9 @@ class CurriculumPlugin
   File frameworkDir
   File templateDir
   File handoutConfDir
-  File deckjsDir
   File slidesOutputDir
   File pdfWorkingDir
-  File buildDeckjsDir
+  File bespokeDir
 
 
   void apply(Project project) {
@@ -32,12 +31,11 @@ class CurriculumPlugin
 
     curriculumRootDir = findProjectRoot(project)
     frameworkDir = new File(curriculumRootDir, 'framework')
-    templateDir = new File(frameworkDir, 'asciidoctor-backends')
+    templateDir = new File(frameworkDir, 'backend/templates')
     handoutConfDir = new File(frameworkDir, 'handout')
-    deckjsDir = new File(frameworkDir, 'deck.js')
     slidesOutputDir = project.buildDir
     pdfWorkingDir = new File(project.buildDir, 'screenshots')
-    buildDeckjsDir = new File(slidesOutputDir, 'deck.js')
+    bespokeDir = new File(frameworkDir, 'bespoke')
 
     project.extensions.watch = project.container(WatchTarget) { name ->
       project.extensions.create(name, WatchTarget, name)
@@ -66,6 +64,7 @@ class CurriculumPlugin
     createAndConfigureServerTask(project)
     createAndConfigureOutlineTask(project)
     configureWatchTask(project)
+    project.tasks.getByName('asciidoctor').enabled = false
   }
 
 
@@ -80,9 +79,9 @@ class CurriculumPlugin
 
   def configureLesscTask(project) {
     project.tasks.getByName('lessc').configure {
-      sourceDir "${deckjsDir}/themes/style"
+      sourceDir "${frameworkDir}/styles"
       include "**/*.less"
-      destinationDir = "${buildDeckjsDir}/themes/style"
+      destinationDir = "${project.buildDir}/styles"
       mustRunAfter project.tasks.getByName('asciidoctor')
       description = 'Compiles less files into CSS'
       group = 'Curriculum'
@@ -124,36 +123,25 @@ class CurriculumPlugin
       expand(['image_path': 'images'])
     }
 
-    project.tasks.create('copyVertexDeckJS', Copy).configure {
-      into project.buildDir
-      from(frameworkDir) {
-        include 'deck.js/**'
+    project.tasks.create('copyBespoke', Copy).configure {
+      from("${frameworkDir}/scripts/dist") {
+        include '**/*.js'
       }
+      into "${project.buildDir}/js"
     }
 
-    project.tasks.create('copyVertexDeckExt', Copy).configure {
-      from "${frameworkDir}/deck.ext.js/extensions"
-      into "${buildDeckjsDir}/extensions"
+    project.tasks.create('copyNonLessStyles', Copy).configure {
+      from("${frameworkDir}/styles") {
+        exclude '**/*.less'
+      }
+      into "${project.buildDir}/styles"
     }
-
-    project.tasks.create('copyVertexDeckSplit', Copy).configure {
-      from "${frameworkDir}/deck.split.js"
-      into "${buildDeckjsDir}/extensions/split/"
-    }
-
-    project.tasks.create('copyVertexDeckNotes', Copy).configure {
-      from "${frameworkDir}/deck.js-notes"
-      into "${buildDeckjsDir}/extensions/deck.js-notes/"
-    }
-
 
     project.tasks.create('copySlideFrameworkFiles').configure {
       dependsOn << [
                     'copyVertexJS',
-                    'copyVertexDeckJS',
-                    'copyVertexDeckNotes',
-                    'copyVertexDeckSplit',
-                    'copyVertexDeckExt'
+                    'copyBespoke',
+                    'copyNonLessStyles'
                    ]
     }
 
@@ -180,14 +168,13 @@ class CurriculumPlugin
   }
 
 
-
   def configureSlidesTask(task) {
     task.configure {
       dependsOn << ['lessc', 'copySlideFrameworkFiles']
       description = 'Builds the presentation slides only'
       group = 'Curriculum'
-      backends 'deckjs'
-      options template_dirs: [new File(templateDir, 'haml').absolutePath]
+      backends 'bespoke'
+      options template_dirs: [new File(templateDir, 'slim').absolutePath]
       attributes 'source-highlighter': 'coderay', idprefix: '', idseparator: '-'
 
       outputDir project.buildDir
@@ -228,9 +215,9 @@ class CurriculumPlugin
       options template_dirs : [new File(templateDir, 'haml').absolutePath ]
       attributes 'source-highlighter': 'coderay',
               idprefix: '',
-              idseparator: '-',
-              stylesheet: 'styles.css',
-              stylesdir: project.file("${frameworkDir}/asciidoctor-backends/haml/html5/css")
+              idseparator: '-'
+//              stylesheet: 'styles.css',
+//              stylesdir: project.file("${frameworkDir}/asciidoctor-backends/haml/html5/css")
 
       resources {
         from(project.projectDir) {
@@ -295,12 +282,10 @@ class CurriculumPlugin
       description = 'Watch a vertex and run the vertexSlides task when it changes'
 
       def targets = [
-              [name: 'vertexJS', files: project.tasks.copyVertexJS.inputs.files, task: 'copyVertexJS'],
-              [name: 'vertexDeckJS', files: project.tasks.copyVertexDeckJS.inputs.files, task: 'copyVertexDeckJS'],
-              [name: 'vertexDeckNotes', files: project.tasks.copyVertexDeckNotes.inputs.files, task: 'copyVertexDeckNotes'],
-              [name: 'vertexDeckSplit', files: project.tasks.copyVertexDeckSplit.inputs.files, task: 'copyVertexDeckSplit'],
-              [name: 'vertexDeckExt', files: project.tasks.copyVertexDeckExt.inputs.files, task: 'copyVertexDeckExt'],
-              [name: 'vertexSlides', files: project.tasks.vertexSlides.inputs.files, task: 'vertexSlides']
+        [name: 'less', files: project.tasks.lessc.inputs.files, task: 'lessc'],
+        [name: 'vertexJS', files: project.tasks.copyVertexJS.inputs.files, task: 'copyVertexJS'],
+        [name: 'vertexSlides', files: project.tasks.vertexSlides.inputs.files, task: 'vertexSlides'],
+        [name: 'bespoke', files: project.tasks.copyBespoke.inputs.files, task: 'copyBespoke']
       ]
 
       targets.each { target ->
@@ -311,7 +296,6 @@ class CurriculumPlugin
       }
     }
   }
-
 
 
   def createAndConfigureSlidesExportTask(project) {
