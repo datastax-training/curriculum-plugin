@@ -130,6 +130,13 @@ class CurriculumPlugin
       into "${project.buildDir}/js"
     }
 
+    project.tasks.create('copyOnstage', Copy).configure {
+      from("${frameworkDir}/onstage") {
+        include '*.html'
+      }
+      into "${project.buildDir}"
+    }
+
     project.tasks.create('copyNonLessStyles', Copy).configure {
       from("${frameworkDir}/styles") {
         exclude '**/*.less'
@@ -141,6 +148,7 @@ class CurriculumPlugin
       dependsOn << [
                     'copyVertexJS',
                     'copyBespoke',
+                    'copyOnstage',
                     'copyNonLessStyles'
                    ]
     }
@@ -285,6 +293,7 @@ class CurriculumPlugin
         [name: 'less', files: project.tasks.lessc.inputs.files, task: 'lessc'],
         [name: 'vertexJS', files: project.tasks.copyVertexJS.inputs.files, task: 'copyVertexJS'],
         [name: 'vertexSlides', files: project.tasks.vertexSlides.inputs.files, task: 'vertexSlides'],
+        [name: 'onstage', files: project.tasks.copyOnstage.inputs.files, task: 'copyOnstage'],
         [name: 'bespoke', files: project.tasks.copyBespoke.inputs.files, task: 'copyBespoke']
       ]
 
