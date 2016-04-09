@@ -25,10 +25,9 @@ class CurriculumPlugin
 
   void apply(Project project) {
     project.plugins.apply('org.asciidoctor.convert')
+    project.plugins.apply('com.github.jruby-gradle.base')
     project.plugins.apply('lesscss')
     project.plugins.apply('jetty')
-    project.plugins.apply('com.github.jruby-gradle.base')
-    //project.plugins.apply('com.bluepapa32.watch')
 
     curriculumRootDir = findProjectRoot(project)
     frameworkDir = new File(curriculumRootDir, 'framework')
@@ -37,6 +36,12 @@ class CurriculumPlugin
     slidesOutputDir = project.buildDir
     pdfWorkingDir = new File(project.buildDir, 'screenshots')
     bespokeDir = new File(frameworkDir, 'bespoke')
+
+    project.dependencies {
+      gems 'rubygems:asciidoctor-bespoke:1.0.0.alpha.1'
+    }
+
+    project.extensions.asciidoctorj.version = '1.5.4'
 
     project.extensions.watch = project.container(WatchTarget) { name ->
       project.extensions.create(name, WatchTarget, name)
@@ -179,10 +184,14 @@ class CurriculumPlugin
 
   def configureSlidesTask(task) {
     task.configure {
-      dependsOn << ['lessc', 'copySlideFrameworkFiles']
+      dependsOn << ['lessc', 'copySlideFrameworkFiles', 'jrubyPrepare']
       description = 'Builds the presentation slides only'
       group = 'Curriculum'
+
+      requires 'asciidoctor-bespoke'
+      gemPath = project.tasks.jrubyPrepare.outputDir
       backends 'bespoke'
+
       options template_dirs: [new File(templateDir, 'slim').absolutePath]
       attributes 'source-highlighter': 'coderay', idprefix: '', idseparator: '-'
 
@@ -190,7 +199,7 @@ class CurriculumPlugin
       separateOutputDirs = false
       sourceDir "${project.projectDir}/src"
       sources {
-        // Just take slides.adoc or slides-*.adoc. You'll get the rest via includes
+        // Just take slides.adoc or slides-*.adoc. You'll get the rest via includes.
         include 'slides*.adoc'
       }
 
@@ -202,12 +211,6 @@ class CurriculumPlugin
         }
       }
 
-      requires 'asciidoctor-bespoke'
-      if(!project.buildDir.exists()) {
-        dependsOn << 'jrubyPrepare'
-      }
-      gemPath = project.tasks.jrubyPrepare.outputDir
-      backends 'bespoke'
     }
   }
 
