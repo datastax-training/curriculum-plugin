@@ -1,0 +1,303 @@
+
+== Simple Traversal Definition
+
+*The most basic graph traversal*
+
+* Moves traversers through steps in sequential order
+* Contains no internal, nested traversals
+
+image::{image_path}/simple-traversal.svg[float="center"]
+
+
+[.notes]
+--
+We are starting our journey with Gremlin by learning about simple traversals.
+
+A simple traversal is simple and easy to define and understand because it:
+
+* Moves traversers through steps in sequential order
+* Contains no internal, nested traversals
+
+Imagine Gremlin, the traverser, guided by a simple traversal, hopping from one vertex to the next.
+--
+
+
+== Prerequisites: Vertex Steps
+
+*Navigating from a vertex*
+
+[cols="1,3" options="header"]
+|===
+
+|Step
+|Description
+
+
+|*out*([_label_], ...)   |Move to the outgoing adjacent vertices given the edge labels.
+
+|*in*([_label_], ...)    |Move to the incoming adjacent vertices given the edge labels.
+
+|*both*([_label_], ...)  |Move to both the incoming and outgoing adjacent vertices given the edge labels.
+
+|*outE*([_label_], ...)  |Move to the outgoing incident edges given the edge labels.
+
+|*inE*([_label_], ...)   |Move to the incoming incident edges given the edge labels.
+
+|*bothE*([_label_], ...) |Move to both the incoming and outgoing incident edges given the edge labels.
+
+|===
+
+[.notes]
+--
+To tell the traverser how to move, we need so called _vertex steps_.
+
+Here are those that are applicable when the traverser is starting at a vertex.
+--
+
+<<<<
+
+*Navigating from a vertex*
+
+image::{image_path}/vertex-steps-1.svg[float="center"]
+
+[.notes]
+--
+It is useful to visualize vertex steps with respect to how the traverser moves.
+--
+
+<<<<
+
+*Navigating from an edge*
+
+[cols="1,3" options="header"]
+|===
+
+|Step
+|Description
+
+|*outV*()   |Move to the outgoing vertex.
+
+|*inV*()    |Move to the incoming vertex.
+
+|*bothV*()  |Move to both vertices.
+
+|*otherV*() |Move to the vertex that was not the vertex that was moved from.
+
+|===
+
+image::{image_path}/vertex-steps-2.svg[float="center"]
+
+[.notes]
+--
+Here are some more steps. These are applicable when the traverser is starting at an edge.
+--
+
+
+== The _KillrVideo_ Graph Schema
+
+image::{image_path}/graph-schema.svg[float="center"]
+
+
+[.notes]
+--
+To demonstrate various steps and traversals, we will be using a _KillrVideo_ graph with this schema.
+
+The graph contains 4 types of vertices, labeled _movie_, _user_, _genre_, and _person_, and
+a number of labeled edges that may connect vertices of specific types. Study the properties
+(their keys/names and value types) shown in the schema graph.
+
+--
+
+
+== Simple Traversal with _in_
+
+*Find Johnny Depp's movies released in 2010 or later*
+
+[role="right"]
+image::{image_path}/small-graph-schema.svg[float="right"]
+
+[role="left"]
+[source]
+--
+g.V().
+  hasLabel("person").
+  has("name","Johnny Depp").
+  in("actor").
+  has("year",gte(2010)).
+  values("title")
+
+// Sample output:
+// Pirates of the Caribbean: On Stranger Tides
+// Alice in Wonderland
+// Into the Woods
+--
+
+[.notes]
+--
+Our first example that moves the traverser using step _in_.
+
+The three _has_ steps are used to select vertices with specific labels and property values.
+
+Step _values_ gets us values for movie _title_ properties.
+--
+
+
+== More on Step _has_
+
+*Filtering vertices, edges, and vertex properties*
+
+[cols="1,3" options="header"]
+|===
+
+|Step
+|Description
+
+|*has*(_key_)              |Remove the traverser if its element does not have a value for the key.
+
+|*has*(_key_, _value_)     |Remove the traverser if its element does not have the provided key-value property.
+
+|*has*(_key_, _predicate_) |Remove the traverser if its element does not have a key value that satisfies the bi-predicate.
+
+|*has*(_key_, _traversal_) |Remove the traverser if its object does not yield a result through the traversal off the property value.
+
+|*hasLabel*(_label_, ...)  |Remove the traverser if its element does not have any of the labels.
+
+|*hasId*(_id_, ...)        |Remove the traverser if its element does not have any of the ids.
+
+|...                       |...
+
+|===
+
+[.notes]
+--
+The _has_ steps are commonly used in all types of traversals, not just simple traversals.
+
+It may be a good time to take a closer look at various possibilities (this list in incomplete, see the docs
+for more).
+--
+
+
+== Simple Traversal with _in_ and _out_
+
+*Find directors of Johnny Depp's movies released in 2010 or later*
+
+[role="right"]
+image::{image_path}/small-graph-schema.svg[float="right"]
+
+[role="left"]
+[source]
+--
+g.V().
+  hasLabel("person").
+  has("name","Johnny Depp").
+  in("actor").
+  has("year",gte(2010)).
+  out("director").
+  values("name")
+
+// Sample output:
+// Rob Marshall
+// Tim Burton
+// Rob Marshall
+--
+
+[.notes]
+--
+Our second example uses _in_ and _out_.
+--
+
+
+== Simple Traversal with _in_ and _inE_
+
+*Find user ratings for Johnny Depp's movies released in 2010 or later*
+
+[role="right"]
+image::{image_path}/small-graph-schema.svg[float="right"]
+
+[role="left"]
+[source]
+--
+g.V().
+  hasLabel("person").
+  has("name","Johnny Depp").
+  in("actor").
+  has("year",gte(2010)).
+  inE("rated").
+  values("rating")
+
+// Sample output:
+// 3
+// 7
+// 7
+// ...
+--
+
+[.notes]
+--
+Our third traversal demonstrates how to move the traverser to an edge using _inE_ and
+access a property value attached to that edge.
+--
+
+
+== More on Predicates
+
+*Relating objects and values*
+
+[cols="2,5" options="header"]
+|===
+
+|Predicate
+|Description
+
+|*eq*(_object_), *neq*(_object_), *lt*(_number_), *lte*(_number_), *gt*(_number_), *gte*(_number_)
+|Is the incoming object/number equal, not equal, less than, less than or equal, greater than, greater than or equal to the provided object/number?
+
+|*inside*(_number_, _number_)  |Is the incoming number greater than the first provided number and less than the second?
+|*outside*(_number_, _number_) |Is the incoming number less than the first provided number and greater than the second?
+|*between*(_number_, _number_) |Is the incoming number greater than or equal to the first provided number and less than the second?
+|*within*(_object_, ...)       |Is the incoming object among the provided objects?
+|*without*(_object_, ...)      |Is the incoming object not among the provided objects?
+
+|===
+
+[.notes]
+--
+You may have noticed that we previously used predicate _gte_ with the _has_ steps. There are other
+commonly used predicates, too. We are going to use _within_ in our next traversal.
+
+_has_ is not the only step that uses predicates. Other examples include steps _where_ and _is_.
+
+--
+
+
+== Simple Traversal with _in_, _inE_, and _outV_
+
+*Find ages of users who left 7 or 8 star ratings for Johnny Depp's movies released in 2010 or later*
+
+[role="right"]
+image::{image_path}/small-graph-schema.svg[float="right"]
+
+[role="left"]
+[source]
+--
+g.V().
+  hasLabel("person").
+  has("name","Johnny Depp").
+  in("actor").
+  has("year",gte(2010)).
+  inE("rated").
+  has("rating",within(7,8)).
+  outV().
+  values("age")
+
+// Sample output:
+// 26
+// 36
+// ...
+--
+
+[.notes]
+--
+Our final example moves the traverser from a vertex to another vertex (_in_), to an edge (_inE_),
+and to a vertex again (_outV_).
+--

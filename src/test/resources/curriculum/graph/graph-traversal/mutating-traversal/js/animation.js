@@ -1,0 +1,1 @@
+var test = 'Fake JS for Mutating Traversal vertex. Do not remove.'

@@ -1,0 +1,6 @@
+== Mutating Traversal
+
+=== Learning Objectives
+
+* You will become familiar with steps _addV_, _addE_, _property_, and _drop_
+* You will be able to define mutating traversals

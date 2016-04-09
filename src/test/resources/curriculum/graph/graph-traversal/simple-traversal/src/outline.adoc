@@ -1,0 +1,13 @@
+== Simple Traversal
+
+=== Outline
+
+* Simple Traversal Definition
+* Prerequisites: Vertex Steps
+* The _KillrVideo_ Graph Schema
+* Simple Traversal with _in_
+* More on Step _has_
+* Simple Traversal with _in_ and _out_
+* Simple Traversal with _in_ and _inE_
+* More on Predicates
+* Simple Traversal with _in_, _inE_, and _outV_

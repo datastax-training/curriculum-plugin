@@ -1,0 +1,6 @@
+== Property Graph
+
+=== Learning Objectives
+
+* You will be able to define a property graph
+* You will be able to use the property graph terminology

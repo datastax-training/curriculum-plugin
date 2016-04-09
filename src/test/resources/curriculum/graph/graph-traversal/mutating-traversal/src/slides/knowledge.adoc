@@ -1,0 +1,303 @@
+
+== Mutating Traversal Definition
+
+*Traversal that changes the graph structure*
+
+* Traverses and mutates a graph structure
+* Adds or removes vertices, edges, and properties
+
+
+image::{image_path}/mutating-traversal.svg[float="center"]
+
+
+[.notes]
+--
+All Gremlin graph traversals that you might have studied up to now
+are traversals that only read from a graph.
+Mutating traversals are traversals that write to a graph or change its structure.
+That includes adding and removing vertices, edges, and properties.
+
+One question you may have is why not use the graph API directly to
+mutate the graph structure? Why do we also need mutating traversal steps?
+The important and unique advantage of a mutating traversal is that the graph
+is traversed first to find and expose some new meaning that then can be materialized
+in the graph as new properties, relationships, and entities. For example,
+if a user gave high ratings to many movies that belong to a particular genre,
+you may infer that the user likes that genre and capture this new meaning
+by creating an edge between the user and genre vertices. Such computation is
+only possible with mutating traversals!
+
+The illustration shows the traverser who looks like a construction worker.
+--
+
+== Mutating Traversal Steps
+
+*Adding and removing vertices, edges, and properties*
+
+[cols="1,3" options="header"]
+|===
+
+|Step
+
+|Description
+
+| *addV*(_label_)
+| Create a new labeled vertex for each incoming object in a traversal stream.
+
+| *addE*(_label_)
+| Create a new labeled edge for each incoming vertex in a traversal stream.
+For every edge, while one endpoint corresponds to an incoming vertex
+in the traversal stream, the other endpoint and edge direction are specified
+by step modulator _from_ or step modulator _to_; if the other endpoint is not specified,
+the edge is a loop, connecting the same vertex twice.
+
+| *property*([_cardinality_],_key_,_value_)
+| Create a property (also, multi-property and meta-property) with the known property
+key and property value.
+
+| *drop*()
+| Remove all vertices, edges, and properties seen in a traversal stream
+from a graph. Dropping a vertex also removes its all incident edges.
+
+|===
+
+
+[.notes]
+--
+Here are the four relatively straightforward mutating traversal steps
+that we will use in this presentation. Study their descriptions. Again, we will
+learn a lot via concrete traversal examples.
+--
+
+== Step Modulators _from_ and _to_
+
+*Specifying essential parameters for step _addE_*
+
+[cols="1,3" options="header"]
+|===
+
+|Step modulator
+
+|Description
+
+| *from*(_stepLabel_), *from*(_traversal_)
+| Specify that a new edge created by a preceding step _addE_ must be directed from
+a vertex returned by the labeled step or internal traversal.
+
+| *to*(_stepLabel_), *to*(_traversal_)
+| Specify that a new edge created by a preceding step _addE_ must be directed to
+a vertex returned by the labeled step or internal traversal.
+
+|===
+
+
+[.notes]
+--
+These are two step modulators for step _addE_. We will usually use one or both
+to specify one or both endpoints, as well as the edge direction.
+--
+
+
+== The _KillrVideo_ Graph Schema
+
+image::{image_path}/graph-schema.svg[float="center"]
+
+
+[.notes]
+--
+To demonstrate various steps and traversals, we will be using a _KillrVideo_ graph with this schema.
+
+The graph contains 4 types of vertices, labeled _movie_, _user_, _genre_, and _person_, and
+a number of labeled edges that may connect vertices of specific types. Study the properties
+(their keys/names and value types) shown in the schema graph.
+--
+
+
+== Mutating Traversal with _property_
+
+*Computing and storing average ratings as properties of Tom Hanks' movies*
+
+[role="right"]
+image::{image_path}/small-graph-schema.svg[float="right"]
+
+[role="left"]
+[source]
+--
+g.V().has("person","name","Tom Hanks").in("actor").
+  property("avg",
+           __.inE("rated").values("rating").mean()).
+  valueMap("avg","title")
+
+// Sample output:
+// [avg:[7.097222222222222], title:[Cast Away]]
+// [avg:[7.376623376623376], title:[Philadelphia]]
+// [avg:[5.615384615384615], title:[The Polar Express]]
+// [avg:[7.780487804878049], title:[Saving Private Ryan]]
+// [avg:[7.842696629213483], title:[The Green Mile]]
+// [avg:[8.213483146067416], title:[Forrest Gump]]
+// ...
+--
+
+[.notes]
+--
+This example uses step _property_ and its internal traversal
+to compute an aggregate value and add it to the graph as
+a new property.
+--
+
+
+== Mutating Traversal with _addV_ and _property_
+
+*Adding a new genre for Biography movies*
+
+[role="right"]
+image::{image_path}/small-graph-schema.svg[float="right"]
+
+[role="left"]
+[source]
+--
+g.addV("genre").
+  property("genreId","g19").
+  property("name","Biography").
+  valueMap()
+
+// Sample output:
+// [genreId:[g19], name:[Biography]]
+--
+
+[.notes]
+--
+This example demonstrates how to create a vertex with some properties.
+The new vertex is not connected to any other vertex in the graph.
+Note that _addV_ here is a method of traversal source _g_; technically, it is
+not a traversal step but the idea is the same.
+--
+
+
+== Mutating Traversal with _addV_, _addE_, and _property_
+
+*Adding a new Biography movie with Tom Hanks*
+
+[role="right"]
+image::{image_path}/small-graph-schema.svg[float="right"]
+
+[role="left"]
+[source]
+--
+g.addV("movie").
+  property("movieId","m1000").
+  property("title","Bridge of Spies").
+  property("year","2015").
+  property("duration","135").
+  property("country","United States").
+  as("new").
+  addE("actor").
+    to(__.V().has("person","name","Tom Hanks")).
+  select("new").
+  addE("belongsTo").
+    to(__.V().has("genre","name","Biography"))
+--
+
+[.notes]
+--
+This example creates a new vertex and connects it to two existing vertices
+via new edges.
+
+The last _property_ returns the new movie vertex that is labeled as "new". Each
+_addE_ returns a newly created edge. Notice how we specify
+endpoints for each edge.
+--
+
+== Mutating Traversal with _addE_
+
+*Reasoning about and materializing Tom Hanks' social connections*
+
+[role="right"]
+image::{image_path}/small-graph-schema.svg[float="right"]
+
+[role="left"]
+[source]
+--
+g.V().has("person","name","Tom Hanks").as("tom").
+  in("actor").out("actor").
+  where(neq("tom")).dedup().
+  addE("knows").from("tom").
+  inV().values("name")
+
+// Sample output:
+// Jean Reno
+// Meg Ryan
+// ...
+--
+
+[.notes]
+--
+This is another example where we use _addE_. This time however, a number
+of newly created edges depends on how many vertices we have in the stream after
+_dedup_. Note the use of _from_ with step label "tom".
+
+After creating many new edges, we keep traversing to return names
+of Tom Hanks' connections.
+--
+
+
+== Mutating Traversal with _addE_ and _drop_
+
+*Converting in("actor") edges to out("actedIn") edges for Tom Hanks*
+
+[role="right"]
+image::{image_path}/small-graph-schema.svg[float="right"]
+
+[role="left"]
+[source]
+--
+g.V().has("person","name","Tom Hanks").as("tom").
+  in("actor").as("movie").
+  addE("actedIn").from("tom").
+  outV().inE("actor").drop()
+
+g.V().has("person","name","Tom Hanks").
+  in("actor").count()
+// 0
+
+g.V().has("person","name","Tom Hanks").
+  out("actedIn").count()
+// 10
+--
+
+[.notes]
+--
+This example "reverses" edges.
+--
+
+
+== Mutating and Declarative Traversal
+
+*Reasoning about and materializing Tom Hanks' social connections*
+
+[role="right"]
+image::{image_path}/small-graph-schema.svg[float="right"]
+
+[role="left"]
+[source]
+--
+g.V().has("person","name","Tom Hanks").
+  match(__.as("tom").in("actor").as("m"),
+        __.as("m").out("actor").as("x")).
+  where("x",neq("tom")).
+  dedup("x").
+  addE("knows").from("tom").to("x").
+  inV().values("name")
+
+// Sample output:
+// Jean Reno
+// Meg Ryan
+// ...
+--
+
+[.notes]
+--
+Finally, this example shows a mix of declarative, imperative, and mutating
+steps in a single traversal. Another interesting part is how we use both _from_
+and _to_ with _addE_.
+--

@@ -1,0 +1,6 @@
+==== Property Graph Solutions
+
+1. The three characteristics of a property graph are:
+* Directed
+* Binary
+* Attributed

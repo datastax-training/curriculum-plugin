@@ -1,0 +1,242 @@
+
+== Gremlin
+
+*Graph traversal language*
+
+[role="right"]
+image::{image_path}/gremlin-write.svg[float="right"]
+
+
+[role="left"]
+--
+* Gremlin is defined by Apache TinkerPop
+* Expressive language to define traversals
+* Functional language with a fluent syntax
+* Bindings in Groovy, Java8, Scala, Closure, and more
+--
+
+
+[.notes]
+--
+Gremlin is a graph traversal language defined by Apache TinkerPop.
+
+Gremlin is a very expressive language to work with graphs and is used in
+many other graph databases besides DSE Graph.
+
+Gremlin is a functional language with a fluent interface and bindings
+in Groovy, Java8, Scala, Closure, Ruby, JavaScript, and other programming languages.
+--
+
+
+== Defining Gremlin Traversals
+
+*Linear motif: Traversal is a sequence of steps*
+
+[role="right"]
+image::{image_path}/linear-traversal.svg[float="right"]
+
+[role="left"]
+[source]
+--
+g.
+  V().
+  has("title","Alice in Wonderland").
+  has("year",2010).
+  out("director").
+  values("name")
+
+// Sample output:
+// Tim Burton
+--
+
+[.notes]
+--
+As an example, consider this traversal that starts with the vertex representing the movie
+titled _Alice in Wonderland_
+and released in _2010_. We want to traverse all outgoing edges with label _director_ and
+find values of movie's director names. In this case, _title_, _year_, and _name_ are vertex properties.
+
+This traversal is defined as a sequence of steps, namely _V_ -> _has_ -> _has_ -> _out_ -> _values_.
+It is said to have a _linear motif_.
+
+Note that _g_ represents a traversal source that "knows" about both the property graph and traversal engine
+to be used for this traversal.
+
+The illustration on the right shows how an object called _traverser_ (green running gremlin)
+is propagating to unify the graph and the traversal.
+--
+
+<<<<
+
+*Nested motif: Traversal is a tree of steps*
+
+[role="right"]
+image::{image_path}/nested-traversal.svg[float="right"]
+
+[role="left"]
+[source]
+--
+g.
+  V().
+  has("title","Alice in Wonderland").
+  has("year",2010).
+  union(__.out("director"),
+           out("screenwriter")).
+  values("name")
+
+  // Sample output:
+  // Tim Burton
+  // Linda Woolverton
+--
+
+[.notes]
+--
+Here is an example of a traversal with the _nested motif_. Steps are organized into a tree rather
+than a sequence. Branching is introduced by _union_ that directs a traverser to adjacent vertices
+using outgoing edges labeled with _director_ or _screenwriter_.
+
+We get Tim Burton (director) and Linda Woolverton (screenwriter) in the output.
+--
+
+
+
+== Gremlin Traversal Ingredients
+
+* Traversal source
+
+[source]
+--
+     g = graph.traversal()
+--
+
+* Traversal steps
+
+[source]
+--
+     g.V().has("title","Alice in Wonderland").has("year",2010).out("director").values("name")
+--
+
+* Traverser
+
+image::{image_path}/traverser.svg[float="left"]
+
+[.notes]
+--
+The three main ingredients of a Gremlin traversal are:
+
+* Traversal source -- created from the property graph _graph_
+using the standard, OLTP traversal engine (in this example).
+
+* Traversal steps -- define instructions for the traversal.
+
+* Traverser -- object(s) propagating through the traversal to unify the
+graph and the traversal steps.
+--
+
+
+== Graph Traversal Steps
+
+*Becoming proficient in Gremlin*
+
+[cols="2,1,1,1,1,1"]
+|===
+
+|*Lambda steps*
+|_map_
+|_flatMap_
+|_filter_
+|_sideEffect_
+|_branch_
+
+|*Derived steps*
+|_id_, _label_, _match_, _path_, _select_, _order_, ...
+|_coalesce_, _in_, _inE_, _inV_, _out_, ...
+|_and_, _coin_, _has_, _is_, _or_, _where_, ...
+|_aggregate_, _inject_, _profile_, _property_, _subgraph_, ...
+|_choose_, _repeat_, _union_, ...
+
+|*Other steps*
+5+|_barrier_, _cap_, ...
+
+|*Step modulators*
+5+|_as_, _by_, _emit_, _option_, ...
+
+|*Predicates*
+5+|_gt_, _eq_, _lt_, _neq_, _within_, _without_, ...
+
+|===
+
+
+
+
+[.notes]
+--
+To become proficient in Gremlin, you can study individual traversal steps.
+There are a few dozens of them.
+
+_Lambda steps_ are the foundational constructs of the Gremlin language. They are
+most general steps that can be used to implement most other steps. However they
+are not the easiest steps in Gremlin to use and are mostly intended
+for educational purposes.
+
+_Derived steps_, on the other hand, are useful in practice. Most traversals will typically
+rely on around 10 most commonly used steps, so learning all of them is
+not necessary to start using Gremlin.
+
+There are also a few steps that do not fall under the lambda/derived classification.
+
+There are _step modulators_ that are used to manipulate an existing step.
+
+Finally, there are predicates that are used to relate values and objects.
+--
+
+== Graph Traversal Step Evaluation
+
+*Becoming proficient in Gremlin*
+
+* Lazy evaluation
+** All but _barrier steps_
+* Barrier steps
+** Collecting barrier steps: _aggregate_, _barrier_, _order_, _sample_
+** Reducing barrier steps: _count_, _fold_, _max_, _min_, _sum_
+** Supplying barrier step: _cap_
+
+[.notes]
+--
+Additionally, steps can be classified based on their lazy and non-lazy evaluation.
+
+Verbatim from the Gremlin docs:
+Gremlin is primarily a lazy, stream processing language.
+This means that Gremlin fully processes (to the best of its abilities) any traversers currently in the traversal pipeline
+before getting more data from the start/head of the traversal.
+However, there are numerous situations
+in which a completely lazy computation is not possible (or impractical).
+When a computation is not lazy, a "barrier step" exists.
+There are three types of barriers:
+
+* _CollectingBarrierStep_: All of the traversers prior to the step are put into a collection and then processed in some way (e.g. ordered) prior to the collection being "drained" one-by-one to the next step.
+* _ReducingBarrierStep_: All of the traversers prior to the step are processed by a reduce function and once all the previous traversers are processed, a single "reduced value" traverser is emitted to the next step.
+* _SupplyingBarrierStep_: All of the traversers prior to the step are iterated (no processing) and then some provided supplier yields a single traverser to continue to the next step.
+--
+
+== Types of Graph Traversals
+
+*Becoming proficient in Gremlin*
+
+* Simple Traversal
+* Branching Traversal
+* Recursive Traversal
+* Path Traversal
+* Projecting Traversal
+* Centrality Traversal
+* Mutating Traversal
+* Declarative Traversal
+* Domain Specific Traversal
+
+
+[.notes]
+--
+Finally, combining individual steps into traversals of different types is another
+good approach to learn the language. We will take this approach for this training.
+
+--

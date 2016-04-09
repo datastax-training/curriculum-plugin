@@ -5,7 +5,7 @@ buildscript {
     }
   }
   dependencies {
-    classpath "com.gradle.publish:plugin-publish-plugin:0.9.0"
+    classpath "com.gradle.publish:plugin-publish-plugin:0.9.4"
   }
 }
 
@@ -14,11 +14,12 @@ plugins {
   id 'idea'
   id 'maven'
   id 'com.jfrog.artifactory' version '3.1.1'
+  id 'jacoco'
 }
 
 apply plugin: "com.gradle.plugin-publish"
 
-def versionNumber = '0.1.8'
+def versionNumber = '0.2'
 
 pluginBundle {
   website = 'http://www.github.com/datastax-training'
@@ -46,12 +47,14 @@ repositories {
 }
 
 dependencies {
-  compile 'org.codehaus.groovy:groovy-all:2.3.10'
+  compile 'org.codehaus.groovy:groovy-all:2.4.4'
   compile gradleApi()
   compile 'com.github.houbie:lesscss-gradle-plugin:1.0.3-less-1.7.0'
-  compile 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.2'
+  compile 'org.asciidoctor:asciidoctor-gradle-plugin:1.5.3'
+  //compile 'com.bluepapa32:gradle-watch-plugin:0.1.5'
   runtime 'org.asciidoctor:asciidoctorj-groovy-dsl:1.0.0.preview2'
   runtime 'org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.8'
+  testCompile 'junit:junit:4.12'
 }
 
 
@@ -61,7 +64,7 @@ jar {
 
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '2.4'
+  gradleVersion = '2.12'
 }
 
 

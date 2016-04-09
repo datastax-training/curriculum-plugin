@@ -1,0 +1,2 @@
+This file should not be included in vertex builds, because it does not end in .adoc.
+It is here to support tests to that effect.
