@@ -15,9 +15,11 @@ plugins {
   id 'maven'
   id 'com.jfrog.artifactory' version '3.1.1'
   id 'jacoco'
+  //id 'org.asciidoctor.convert' version '1.5.3'
+  id 'com.github.jruby-gradle.base' version '1.2.1'
 }
 
-apply plugin: "com.gradle.plugin-publish"
+apply plugin: 'com.gradle.plugin-publish'
 
 def versionNumber = '0.2.1-SNAPSHOT'
 
@@ -47,6 +49,7 @@ repositories {
 }
 
 dependencies {
+  compile 'com.github.jruby-gradle.base:1.2.1'
   compile 'org.codehaus.groovy:groovy-all:2.4.4'
   compile gradleApi()
   compile 'com.github.houbie:lesscss-gradle-plugin:1.0.3-less-1.7.0'
@@ -55,6 +58,7 @@ dependencies {
   runtime 'org.asciidoctor:asciidoctorj-groovy-dsl:1.0.0.preview2'
   runtime 'org.asciidoctor:asciidoctorj-pdf:1.5.0-alpha.8'
   testCompile 'junit:junit:4.12'
+  gems 'rubygems:asciidoctor-bespoke:1.0.0.alpha.1'
 }
 
 

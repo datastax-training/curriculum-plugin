@@ -27,6 +27,7 @@ class CurriculumPlugin
     project.plugins.apply('org.asciidoctor.convert')
     project.plugins.apply('lesscss')
     project.plugins.apply('jetty')
+    project.plugins.apply('com.github.jruby-gradle.base')
     //project.plugins.apply('com.bluepapa32.watch')
 
     curriculumRootDir = findProjectRoot(project)
@@ -168,7 +169,7 @@ class CurriculumPlugin
     task = project.tasks.create('vertexDocs', AsciidoctorTask)
     configureDocsTask(task)
     task.attributes image_path: 'images',
-                    exercise_number: 1
+            exercise_number: 1
 
     task = project.tasks.create('courseDocs', AsciidoctorTask)
     configureDocsTask(task)
@@ -200,6 +201,13 @@ class CurriculumPlugin
           include 'images/**/*.png'
         }
       }
+
+      requires 'asciidoctor-bespoke'
+      if(!project.buildDir.exists()) {
+        dependsOn << 'jrubyPrepare'
+      }
+      gemPath = project.tasks.jrubyPrepare.outputDir
+      backends 'bespoke'
     }
   }
 
@@ -495,6 +503,7 @@ class CurriculumPlugin
       }
     }
   }
+
 
   boolean isCourse() {
 
