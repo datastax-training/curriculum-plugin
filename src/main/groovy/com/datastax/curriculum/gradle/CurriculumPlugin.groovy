@@ -38,7 +38,9 @@ class CurriculumPlugin
     bespokeDir = new File(frameworkDir, 'bespoke')
 
     project.dependencies {
-      gems 'rubygems:asciidoctor-bespoke:1.0.0.alpha.1'
+      gems('rubygems:asciidoctor-bespoke:1.0.0.alpha.1') {
+        transitive false
+      }
     }
 
     project.extensions.asciidoctorj.version = '1.5.4'
