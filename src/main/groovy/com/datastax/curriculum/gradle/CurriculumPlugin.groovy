@@ -141,6 +141,7 @@ class CurriculumPlugin
     project.tasks.create('copyOnstage', Copy).configure {
       from("${frameworkDir}/onstage") {
         include '*.html'
+        include '*.css'
       }
       into "${project.buildDir}"
     }
