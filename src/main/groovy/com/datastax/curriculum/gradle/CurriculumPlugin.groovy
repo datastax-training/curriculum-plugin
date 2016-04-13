@@ -142,6 +142,7 @@ class CurriculumPlugin
       from("${frameworkDir}/onstage") {
         include '*.html'
         include '*.css'
+        include '*.js'
       }
       into "${project.buildDir}"
     }
