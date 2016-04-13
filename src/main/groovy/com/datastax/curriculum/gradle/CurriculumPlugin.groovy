@@ -28,7 +28,6 @@ class CurriculumPlugin
     project.plugins.apply('org.asciidoctor.convert')
     project.plugins.apply('lesscss')
     project.plugins.apply('jetty')
-    //project.plugins.apply('com.bluepapa32.watch')
 
     curriculumRootDir = findProjectRoot(project)
     frameworkDir = new File(curriculumRootDir, 'framework')
