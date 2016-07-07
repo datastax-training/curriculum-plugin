@@ -1,0 +1,46 @@
+
+== Property Graph
+
+[.question]
+Which statement about a property graph is correct?
+
+[.answers]
+[upperalpha]
+A. A property graph is a Directed Acyclic Graph (DAG)
+B. A property graph is a directed, binary, attributed multi-graph
+C. A property graph is a directed, binary multi-graph with labeled properties
+D. A property graph is a collection of vertices, hyperedges, and properties
+
+[.correct]
+* answer
+
+
+== Property Graph
+
+[.question]
+A multi-property can be associated with a:
+
+[upperalpha]
+[.answers]
+A. vertex
+B. vertex property
+C. edge
+D. edge property
+
+[.correct]
+* answer
+
+
+== Property Graph
+
+[.question]
+A meta-property can be associated with a:
+
+[upperalpha]
+A. vertex
+B. vertex property
+C. edge
+D. edge property
+
+[.correct]
+* answer
