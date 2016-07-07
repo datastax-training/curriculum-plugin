@@ -15,32 +15,29 @@ D. A property graph is a collection of vertices, hyperedges, and properties
 * B
 
 
-== Property Graph
+== Term Modifiers
 
 [.question]
-A multi-property can be associated with a:
+Proximity searches can find matches for phrases regardless of the order of the terms.
 
-[upperalpha]
+[.correct]
+* True
+
+
+
+== Exporting and Importing Graphs with Gremlin I/O
+
+[.question]
+What Gremlin I/O flavors are available? Select all that apply.
+
 [.answers]
-A. vertex
-B. vertex property
-C. edge
-D. edge property
+[upperalpha]
+A. GraphSON
+B. GraphML
+C. Gryo
+D. GraphCSV
 
 [.correct]
 * A
-
-
-== Property Graph
-
-[.question]
-A meta-property can be associated with a:
-
-[upperalpha]
-A. vertex
-B. vertex property
-C. edge
-D. edge property
-
-[.correct]
 * B
+* C

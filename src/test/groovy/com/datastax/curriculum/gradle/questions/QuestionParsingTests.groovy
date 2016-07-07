@@ -1,9 +1,5 @@
 package com.datastax.curriculum.gradle.questions
 
-import org.asciidoctor.ast.ContentPart
-import org.asciidoctor.ast.Document
-import org.asciidoctor.ast.StructuredDocument
-
 import static org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -11,40 +7,43 @@ import org.junit.Test
 
 class QuestionParsingTests {
   String propertyGraphPath = 'src/test/resources/curriculum/graph/graph-definition/property-graph/'
+  QuestionFileParser qp
+  List<Question> questions
 
-  QuestionParser qp
 
   @Before
   void setup() {
     File quizFile = new File("${propertyGraphPath}/src/quiz.adoc")
-    qp = new QuestionParser(quizFile)
+    qp = new QuestionFileParser(quizFile)
+    questions = qp.parseQuestions()
   }
 
 
   @Test
-  void testStructure() {
+  void testSectionParsing() {
+    assertNotNull questions
+    assertEquals 3, questions.size()
+  }
 
-    def sections = qp.getQuestionSections()
-    assertNotNull sections
-    assertEquals 3, sections.size()
 
-    String question
-    List<String> answers
+  @Test
+  void testQuestionText() {
+    assertNotNull questions[0].question
+    assertEquals 'Which statement about a property graph is correct?', questions[0].question
 
-    question = qp.getQuestion(sections[0])
-    assertNotNull question
-    assertEquals 'Which statement about a property graph is correct?', question
-    answers = qp.getAnswers(sections[0])
-    assertNotNull answers
-    assertEquals 4, answers.size()
-    assertEquals 'A property graph is a Directed Acyclic Graph (DAG)', answers[0]
-    assertEquals 'A property graph is a directed, binary, attributed multi-graph', answers[1]
-    assertEquals 'A property graph is a directed, binary multi-graph with labeled properties', answers[2]
-    assertEquals 'A property graph is a collection of vertices, hyperedges, and properties', answers[3]
+    assertNotNull questions[1].question
+    assertEquals 'Proximity searches can find matches for phrases regardless of the order of the terms.', questions[1].question
 
+    assertNotNull questions[2].question
+    assertEquals 'What Gremlin I/O flavors are available? Select all that apply.', questions[2].question
+  }
+
+
+  @Test
+  void testAnswerMaps() {
     Map<Character, String> answerMap
 
-    answerMap = qp.getAnswerMap(sections[0])
+    answerMap = questions[0].getAnswerMap()
     assertNotNull answerMap
     assertEquals 4, answerMap.size()
     assertEquals 'A property graph is a Directed Acyclic Graph (DAG)', answerMap.A
@@ -52,64 +51,35 @@ class QuestionParsingTests {
     assertEquals 'A property graph is a directed, binary multi-graph with labeled properties', answerMap.C
     assertEquals 'A property graph is a collection of vertices, hyperedges, and properties', answerMap.D
 
-    question = qp.getQuestion(sections[1])
-    assertNotNull question
-    assertEquals 'A multi-property can be associated with a:', question
-    question = qp.getQuestion(sections[2])
-    assertNotNull question
-    assertEquals 'A meta-property can be associated with a:', question
 
-
-
-//    doc.blocks().each { block ->
-//      dumpBlock(block)
-//      if(block.blocks.size()) {
-//        block.blocks.each { b ->
-//          dumpBlock(b)
-//        }
-//      }
-//    }
-
-//
-//    StructuredDocument structuredDoc
-//    structuredDoc = asciidoctor.readDocumentStructure(quizFile, [STRUCTURE_MAX_LEVEL: 100])
-//    assertNotNull structuredDoc
-//    def sections = structuredDoc.getPartsByContext('section')
-//    assertNotNull sections
-//    assertEquals 3, sections.size()
-//
-//    sections.each { section ->
-//      ContentPart question, answers, correct
-//      StructuredDocument sectionDoc = StructuredDocument.createStructuredDocument(header, section.parts)
-//
-//      question = sectionDoc.getPartByRole('question')
-//      answers = sectionDoc.getPartByStyle('upperalpha')
-//      correct = sectionDoc.getPartByRole('correct')
-//
-//      assertNotNull question
-//      assertNotNull answers
-//      assertNotNull correct
-//
-//      println question.content
-//      println "ANSWERS"
-//      dumpPart(answers)
-//      answers.parts.each { part ->
-//        dumpPart(part)
-//        println part.content
-//      }
-//
-//      println "CORRECT"
-//      dumpPart(correct)
-//      correct.parts.each { part ->
-//        dumpPart(part)
-//        println part.content
-//      }
-//    }
+    answerMap = questions[2].getAnswerMap()
+    assertNotNull answerMap
+    assertEquals 4, answerMap.size()
+    assertEquals 'GraphSON', answerMap.A
+    assertEquals 'GraphML', answerMap.B
+    assertEquals 'Gryo', answerMap.C
+    assertEquals 'GraphCSV', answerMap.D
   }
 
+  @Test
+  void testCorrectAnswers() {
+    def correctAnswers
+    
+    correctAnswers = questions[0].getCorrectAnswers()
+    assertNotNull correctAnswers
+    assertEquals 1, correctAnswers.size()
+    assertEquals 'B', correctAnswers[0]
 
+    correctAnswers = questions[1].getCorrectAnswers()
+    assertNotNull correctAnswers
+    assertEquals 1, correctAnswers.size()
+    assertEquals 'true', correctAnswers[0].toLowerCase()
 
-  void dumpPart(part) {
-    println "${part.id}, ${part.level}, ${part.context}, ${part.style}, ${part.role}, ${part.title}, ${part.parts.size()}"
+    correctAnswers = questions[2].getCorrectAnswers()
+    assertNotNull correctAnswers
+    assertEquals 3, correctAnswers.size()
+    assertEquals 'A', correctAnswers[0]
+    assertEquals 'B', correctAnswers[1]
+    assertEquals 'C', correctAnswers[2]
   }
 }
