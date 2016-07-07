@@ -34,6 +34,26 @@ class QuestionParser {
   }
 
 
+  List<String> getAnswers(StructuralNode questionSection) {
+    def list = questionSection.findBy([style: 'upperalpha'])
+    return list?.items.collect { item -> item.text }[0]
+  }
+
+
+  Map<Character, String> getAnswerMap(List<String> answers) {
+    def letters = 'A'..'Z'
+    def map = [:]
+    answers.eachWithIndex { answer, index ->
+      map[letters[index]] = answer
+    }
+    return map
+  }
+
+
+  Map<Character, String> getAnswerMap(StructuralNode questionSection) {
+    getAnswerMap(getAnswers(questionSection))
+  }
+
   boolean isQuestionMultipleChoice() {
     return false
   }
@@ -43,7 +63,7 @@ class QuestionParser {
     return false
   }
 
-  void dumpBlock(block) {
+  void dump(block) {
     println "${block.level}, ${block.title}, ${block.style}, ${block.context}, ${block.blocks?.size()}, ${block.getRoles()}"
   }
 

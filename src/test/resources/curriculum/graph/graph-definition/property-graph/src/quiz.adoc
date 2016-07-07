@@ -12,7 +12,7 @@ C. A property graph is a directed, binary multi-graph with labeled properties
 D. A property graph is a collection of vertices, hyperedges, and properties
 
 [.correct]
-* answer
+* B
 
 
 == Property Graph
@@ -28,7 +28,7 @@ C. edge
 D. edge property
 
 [.correct]
-* answer
+* A
 
 
 == Property Graph
@@ -43,4 +43,4 @@ C. edge
 D. edge property
 
 [.correct]
-* answer
+* B

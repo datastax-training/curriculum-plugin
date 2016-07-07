@@ -29,16 +29,37 @@ class QuestionParsingTests {
     assertEquals 3, sections.size()
 
     String question
+    List<String> answers
+
     question = qp.getQuestion(sections[0])
     assertNotNull question
     assertEquals 'Which statement about a property graph is correct?', question
+    answers = qp.getAnswers(sections[0])
+    assertNotNull answers
+    assertEquals 4, answers.size()
+    assertEquals 'A property graph is a Directed Acyclic Graph (DAG)', answers[0]
+    assertEquals 'A property graph is a directed, binary, attributed multi-graph', answers[1]
+    assertEquals 'A property graph is a directed, binary multi-graph with labeled properties', answers[2]
+    assertEquals 'A property graph is a collection of vertices, hyperedges, and properties', answers[3]
+
+    Map<Character, String> answerMap
+
+    answerMap = qp.getAnswerMap(sections[0])
+    assertNotNull answerMap
+    assertEquals 4, answerMap.size()
+    assertEquals 'A property graph is a Directed Acyclic Graph (DAG)', answerMap.A
+    assertEquals 'A property graph is a directed, binary, attributed multi-graph', answerMap.B
+    assertEquals 'A property graph is a directed, binary multi-graph with labeled properties', answerMap.C
+    assertEquals 'A property graph is a collection of vertices, hyperedges, and properties', answerMap.D
+
     question = qp.getQuestion(sections[1])
     assertNotNull question
-    println question
     assertEquals 'A multi-property can be associated with a:', question
     question = qp.getQuestion(sections[2])
     assertNotNull question
     assertEquals 'A meta-property can be associated with a:', question
+
+
 
 //    doc.blocks().each { block ->
 //      dumpBlock(block)
