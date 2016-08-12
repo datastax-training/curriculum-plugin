@@ -56,7 +56,7 @@ This plugin assumes it will be operating on a repository full of Asciidoc-based 
 
 In this model, curriculum is composed of a tree of concepts organized as a mind map. We call this mind map the _knowledge graph_. Here is a hypothetical knowledge graph for content about the DataStax Curriculum system:
 
-![]()
+![image](https://cloud.githubusercontent.com/assets/63223/17630012/be45ad36-607a-11e6-869a-98bbc149728e.png)
 
 This knowledge graph is isomorphic to a directory tree, whose root directory is the root of the curriculum project itself. Each node in the graph is an individual packet of curriculum, including slides, notes, exercises, and solutions. Internally, we refer to knowledge graph nodes as _vertices_. Vertices can be leaf nodes on the tree or any other node that is not the root. For this knowledge graph, we would have a directory tree that looks like this:
 
