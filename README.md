@@ -263,14 +263,17 @@ module-list.adoc
 
 ### Course description file format
 
-
+TODO
 
 ### Where to put big things
 
 Often in the production of curriculum, certain large assets might pop up, like screencast videos or Photoshop files. There is no possible world in which files like this belong in a Git repository
 
+TODO
 
 ## Benefits and drawbacks
+
+TODO
 
 ### Cool things about this system
 
