@@ -181,12 +181,12 @@ apply plugin: 'com.datastax.gradle.curriculum.plugin'
 include::includes.adoc[]
 ```
 
-    * `includes.adoc`. The actual slide content that will be rendered into bespoke.js-compatible HTML for display to students. Slides begin with an H2 title (e.g., `== Slide title`) followed by content. Some authors like to break slides into sections within a node (e.g., challenge, knowledge, solution, etc.) and include them using the `include::` macro inside of the `includes.adoc` file. This structure is up to you.
-    * `exercises.adoc`. The hands-on exercises that accompany the node. Exercises are rendered as HTML for display in the browser.
-    * `solutions.adoc`. The solutions to the exercises. Also rendered as HTML.
-    * `outline.adoc`. An optional outline for the node. Since nodes are intended to be small--perhaps five or ten minutes of lecture--the outline should not be complex.
-    * `objectives.adoc`. An optional list of the node's learning objectives. A good curriculum engineering methodology begins by defining achievable, learner-centered, verifiable objectives.
-    * `quiz.adoc`. An optional set of assessment questions. Ideally the questions will verify that the learning objectives have been met. These are multiple-choice or true/false (sometimes called "objective") questions. Here is an example quiz file:
+** `includes.adoc`. The actual slide content that will be rendered into bespoke.js-compatible HTML for display to students. Slides begin with an H2 title (e.g., `== Slide title`) followed by content. Some authors like to break slides into sections within a node (e.g., challenge, knowledge, solution, etc.) and include them using the `include::` macro inside of the `includes.adoc` file. This structure is up to you.
+** `exercises.adoc`. The hands-on exercises that accompany the node. Exercises are rendered as HTML for display in the browser.
+** `solutions.adoc`. The solutions to the exercises. Also rendered as HTML.
+** `outline.adoc`. An optional outline for the node. Since nodes are intended to be small--perhaps five or ten minutes of lecture--the outline should not be complex.
+** `objectives.adoc`. An optional list of the node's learning objectives. A good curriculum engineering methodology begins by defining achievable, learner-centered, verifiable objectives.
+** `quiz.adoc`. An optional set of assessment questions. Ideally the questions will verify that the learning objectives have been met. These are multiple-choice or true/false (sometimes called "objective") questions. Here is an example quiz file:
     
 ```asciidoc
 == Gremlin Path Traversal
