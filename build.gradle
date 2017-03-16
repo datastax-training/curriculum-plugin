@@ -47,7 +47,7 @@ repositories {
 }
 
 dependencies {
-  compile 'org.codehaus.groovy:groovy-all:2.4.4'
+  compile 'org.codehaus.groovy:groovy-all:2.4.7'
   compile gradleApi()
 
   compile 'com.github.houbie:lesscss-gradle-plugin:1.0.3-less-1.7.0'
@@ -67,7 +67,7 @@ jar {
 
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '2.12'
+  gradleVersion = '3.4.1'
 }
 
 
