@@ -49,7 +49,7 @@ class CurriculumPlugin
       project.extensions.create(name, WatchTarget, name)
     }
 
-    project.task('watchRun') << {
+    project.task('watchRun').doLast {
       println 'Successfully started watcher.'
     }
 
