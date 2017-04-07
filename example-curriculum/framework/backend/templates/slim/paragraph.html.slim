@@ -1,0 +1,9 @@
+p id=id class=role
+  - if title?
+      - _title = title
+      - _stacked = option? 'stacked'
+      strong.heading(class=(_stacked ? 'stacked' : 'run-in')
+          data-terminus=((local_attr 'heading-terminus', '.') unless _stacked || _title =~ /[.?!:,;]$/))=>_title
+      =content
+  - else
+    =content

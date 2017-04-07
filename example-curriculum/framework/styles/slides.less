@@ -1,0 +1,48 @@
+.deck:not(.bespoke-parent),
+.deck section:not(.bespoke-slide) {
+  display: none;
+}
+
+.bespoke-parent,
+.bespoke-scale-parent {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.bespoke-scale-parent,
+.bespoke-slide,
+.bespoke-slide-canvas {
+  pointer-events: none;
+}
+
+.bespoke-slide {
+  background: #fff url('images/bg-white-logo.svg') top right no-repeat;
+  background-size: cover;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  height: 720px;
+  left: 50%;
+  margin-left: -640px;
+  margin-top: -360px;
+  opacity: 0;
+  overflow: hidden;
+  padding: 60px;
+  position: absolute;
+  top: 50%;
+  transition: opacity 150ms ease-in-out;
+  width: 1280px;
+}
+
+.bespoke-active {
+  pointer-events: auto;
+  opacity: 1;
+  z-index: 1;
+}
+
+aside[role=note] {
+  display: none;
+}

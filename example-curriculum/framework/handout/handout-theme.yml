@@ -1,0 +1,193 @@
+font:
+  catalog:
+    Roboto:
+      normal: roboto-regular-subset.ttf
+      bold: roboto-bold-subset.ttf
+      italic: roboto-italic-subset.ttf
+      bold_italic: roboto-bolditalic-subset.ttf
+    M+ 1mn:
+      normal: mplus1mn-regular-ascii-conums.ttf
+      bold: mplus1mn-bold-ascii.ttf
+      italic: mplus1mn-italic-ascii.ttf
+      bold_italic: mplus1mn-bolditalic-ascii.ttf
+    M+ 1p Fallback:
+      normal: mplus1p-regular-fallback.ttf
+      bold: mplus1p-regular-fallback.ttf
+      italic: mplus1p-regular-fallback.ttf
+      bold_italic: mplus1p-regular-fallback.ttf
+  fallbacks:
+    # NOTE M+ 1p provides the arrows glyphs for ->, <-, => and <=
+    - M+ 1p Fallback
+page:
+  background-color: ffffff
+  layout: portrait
+  size: Letter
+  #size: A4
+  #size: [8.888in, 11.11in]
+  margin: [1in, 1in, 1in, 1in]
+base:
+  #font-color: 435a60
+  #font-color: 1a1a1a
+  font-color: 4d4d4d
+  font-family: Roboto
+  font-size: 10.5
+  line-height-length: 15
+  line-height: $base_line_height_length / $base_font_size
+  font-size-large: round($base_font_size * 1.25)
+  font-size-small: round($base_font_size * 0.85)
+  font-size-min: $base_font_size * 0.75
+  font-style: normal
+  align: left
+  border-radius: 4
+  border-width: 0.5
+  border-color: eeeeee
+vertical_rhythm: 10
+horizontal_rhythm: 10
+link:
+  font-color: 428bca
+literal: # currently used for inline monospaced in prose & table cells
+  font-color: 007a99
+  font-family: M+ 1mn
+heading:
+  font-color: $base_font_color
+  font-family: $base_font_family
+  h1-font-size: floor($base_font_size * 2.6)
+  h2-font-size: floor($base_font_size * 2.15)
+  h3-font-size: round($base_font_size * 1.7)
+  h4-font-size: $base_font_size_large
+  h5-font-size: $base_font_size
+  h6-font-size: $base_font_size_small
+  font-style: bold
+  line-height: 1.2
+  margin-top: $vertical_rhythm * 0.2
+  margin-bottom: $vertical_rhythm * 0.8
+block:
+  padding: [$vertical_rhythm, $vertical_rhythm * 1.25, $vertical_rhythm, $vertical_rhythm * 1.25]
+caption:
+  font-style: italic
+  align: left
+  margin-inside: $vertical_rhythm * 0.25
+  margin-outside: 0
+code:
+  font-color: $base_font_color
+  font-family: $literal_font_family
+  font-size: ceil($base_font_size)
+  padding: $code_font_size
+  line-height: 1.25
+  background-color: f5f5f5
+  border-color: cccccc
+  border-radius: $base_border_radius
+  border-width: 0.75
+blockquote:
+  font-color: $base_font_color
+  font-size: $base_font_size_large
+  border-width: 5
+  border-color: $base_border_color
+  cite:
+    font-size: $base_font_size_small
+    font-color: 999999
+sidebar:
+  background-color: eeeeee
+  border-color: $page_background_color
+  border-radius: $base_border_radius
+  border-width: $base_border_width
+  title:
+    font-color: $heading_font_color
+    font-family: $heading_font_family
+    font-size: $heading_h4_font_size
+    font-style: $heading_font_style
+    align: center
+example:
+  background-color: transparent
+  border-color: $base_border_color
+  border-radius: $base_border_radius
+  border-width: 0.75
+admonition:
+  border-color: $base_border_color
+  border-width: $base_border_width
+conum:
+  font-family: M+ 1mn
+  font-color: $literal_font_color
+  font-size: $base_font_size
+  line-height: 4 / 3
+image:
+  align-default: left
+  scaled-width-default: 0.5
+lead:
+  font-size: $base_font_size_large
+  line-height: $base_line_height
+abstract:
+  font-color: 5c6266
+  font-size: $lead_font_size
+  line-height: $lead_line_height
+  font-style: italic
+thematic_break:
+  border-color: $base_border_color
+  margin-top: $vertical_rhythm * 0.5
+  margin-bottom: $vertical_rhythm * 1.5
+description_list:
+  term-font-style: italic
+  description-indent: $horizontal_rhythm * 1.25
+outline_list:
+  indent: $horizontal_rhythm * 1.5
+  # NOTE item-spacing applies to list items that do not have complex content
+  item-spacing: $vertical_rhythm / 2
+  #marker-font-color: 404040
+table:
+  background-color: $page_background_color
+  #head-background-color: <hex value>
+  #head-font-color: $base_font_color
+  even-row-background-color: f9f9f9
+  #odd-row-background-color: <hex value>
+  foot-background-color: f0f0f0
+  border-color: dddddd
+  border-width: $base_border_width
+  cell-padding: $vertical_rhythm / 2
+header:
+  background-color: e6e6e6 
+  # NOTE line-height is hardcoded to 1 until AsciidoctorJ PDF 1.5.0-alpha.9
+  #line-height: $base_line_height
+  font-size: 0.9 * $base_font_size
+  font-color: 4d4d4d
+  height: 0.75in
+  vertical-align: middle
+  # TODO remove valign key after upgrading to AsciidoctorJ PDF 1.5.0-alpha.9
+  valign: center
+  recto:
+    content-left: |
+      {author}
+      {empty}
+      {document-title}
+    # TODO use the following key instead after upgrading to AsciidoctorJ PDF 1.5.0-alpha.9
+    #content-left: |
+    #  {author} +
+    #  {document-title}
+    content-right: |
+      *{page-number} / {page-count}*
+  verso:
+    content-left: $header_recto_content_left
+    content-right: $header_recto_content_right
+footer:
+  # NOTE line-height is hardcoded to 1 until AsciidoctorJ PDF 1.5.0-alpha.9
+  #line-height: 1
+  font-size: 0.9 * $base_font_size
+  font-color: 666666
+  height: 0.75in
+  vertical-align: bottom
+  # TODO remove valign key after upgrading to AsciidoctorJ PDF 1.5.0-alpha.9
+  valign: bottom
+  padding: [0, 0, 0.15in, 0]
+  recto:
+    content-left: |
+      {empty}
+      (C) 2015 DataStax. Use only with permission.
+    # TODO use the following key instead after upgrading to AsciidoctorJ PDF 1.5.0-alpha.9
+    #content-left: |
+    #  {empty} +
+    #  (C) 2015 DataStax. Use only with permission.
+    # TODO set width using pdf-width=125 after upgrading to AsciidoctorJ PDF 1.5.0-alpha.9
+    # NOTE the image is resolved relative to the theme, not the document atm; use absolute path {pdf-stylesdir} to fix
+    content-right: image:{pdf-stylesdir}/datastax-logo.png[width=175]
+  verso:
+    content-left: $footer_recto_content_left
+    content-right: $footer_recto_content_right

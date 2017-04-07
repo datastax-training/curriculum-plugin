@@ -1,0 +1,101 @@
+== Exercise {exercise_number}: VNodes
+
+=== *In this exercise, you will:*
+
+* Understand how VNodes support partition distribution.
+
+=== *_Background_*
+
+The ring of tokens and nodes make Cassandra scalable and fault-tolerant, but managing partitions on solely physical nodes causes problems. For example, when a physical node goes down, it is necessary to redistribute partitions. This is where virtual nodes (or VNodes) come in. VNodes help even-out the load when redistributing partitions across physical nodes.
+
+In this exercise, we are going to change from using single token nodes to using vnodes. Cassandra doesn't allow changing the `num_tokens` settings after a node has joined the cluster, so we have to work around this a bit to make it work.
+
+=== *_Steps_*
+
+1) Be sure neither of your nodes is running. Use the `dsetool status` or `nodetool stopdaemon` command to check their running status. If either is running, be sure to stop them using the `dse cassandra-stop` command as we did earlier.
+
+[source]
+--
+/root/node1/resources/cassandra/bin/nodetool stopdaemon
+/root/node2/resources/cassandra/bin/nodetool stopdaemon
+--
+
+2) Let's investigate the `/root/node1/data/` directory. This is where we configured DataStax Enterprise(TM) to store all your data.
+
+[source]
+--
+root@node0:~/node1/data# ls /root/node1/data/
+commit-log  data  hints  saved-caches
+--
+
+NOTE: Deleting the data directory resets the node back to the initial state as it was before we originally started it. However, we will retain our configuration settings since these setting are stored elsewhere.
+
+Delete the `data/` directories and everything under them for BOTH nodes using the following commands.
+
+[source]
+--
+rm -rf /root/node1/data/
+rm -rf /root/node2/data/
+--
+
+3) Edit `cassandra.yaml`. Change `num_tokens` to 128 and comment out `initial_token`. Do this for both node1 and node2.
+
+4) Restart `/root/node1/bin/dse cassandra`. Once it's up and running, start your second node as well.
+
+Notice both nodes logged the auto-generated token values that they are responsible for.
+
+[source]
+--
+INFO  16:35:21,549  StorageService.java:916 - Generated random tokens. tokens are [-7164459026390735414, -7329258703084495883, -2825494408418277276, -2814177963162293746, 4771436847287064946, 1221128837596336418, 2758854327629106268, 1359184591393302476, -3244875630830152156, 2742024673126635751, 6296102123997854860, -6301150735481409246, -9196071188103611550, 4633406013517800586, 6895137558562257969, 4590245658539980984, -2151196701967273224, 8649268482855384926, 4804267925799144120, -241477754725227088, -4253790134909486319, 5362349254855476300, 2189620579532464368, 1136295162244858393, 6612467125430431234, 1546161538515780728, -2137266451544176803, -3562152163008341724, 6722345001889556846, 966240072964636846, -5199600096620143233, -4119027106741372111, 9045685766372688777, 7566217708112044184, 1115723111921237189, 9070980034781260632, ...
+--
+
+5) Run:
+
+[source]
+--
+/root/node1/resources/cassandra/bin/nodetool status
+--
+
+Notice each node now has 128 tokens.
+
+[source]
+--
+Datacenter: Cassandra
+=====================
+Status=Up/Down
+|/ State=Normal/Leaving/Joining/Moving
+--  Address    Load       Tokens Owns Host ID                               Rack
+UN  127.0.0.1  95.94 KB   128    ?    843de4d9-048a-4df5-bc22-904525982137  rack1
+UN  127.0.0.2  106.91 KB  128    ?    5dcc8e10-a33f-4624-85a4-04d12cf29060  rack1
+--
+
+6) Now execute:
+
+[source]
+--
+/root/node1/resources/cassandra/bin/nodetool ring
+--
+
+Notice that each node is responsible for several smaller sections of the ring.
+
+[source]
+--
+Datacenter: Cassandra
+==========
+Address    Rack  Status State   Load       Owns Token
+                                                9166228171654309027
+127.0.0.1  rack1 Up     Normal  95.94 KB   ?    -9196071188103611550
+127.0.0.2  rack1 Up     Normal  106.91 KB  ?    -8969730683787016919
+127.0.0.1  rack1 Up     Normal  95.94 KB   ?    -8945729420454609414
+127.0.0.1  rack1 Up     Normal  95.94 KB   ?    -8719680550307100947
+127.0.0.2  rack1 Up     Normal  106.91 KB  ?    -8703763752322315189
+127.0.0.2  rack1 Up     Normal  106.91 KB  ?    -8637221419995659516
+127.0.0.1  rack1 Up     Normal  95.94 KB   ?    -8591318478812904452
+127.0.0.2  rack1 Up     Normal  106.91 KB  ?    -8480637939866031070
+127.0.0.2  rack1 Up     Normal  106.91 KB  ?    -8458781044005218195
+127.0.0.2  rack1 Up     Normal  106.91 KB  ?    -8315930667399962439
+127.0.0.2  rack1 Up     Normal  106.91 KB  ?    -8296019866353816923
+127.0.0.1  rack1 Up     Normal  95.94 KB   ?    -8265528382825169538
+127.0.0.2  rack1 Up     Normal  106.91 KB  ?    -8242055094066959822
+...
+--

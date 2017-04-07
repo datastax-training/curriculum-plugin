@@ -1,0 +1,14 @@
+- _has_attribution, _has_citetitle, _has_title = (local_attr? :attribution), (local_attr? :citetitle), title?
+figure.quote id=id class=role
+  blockquote=resolve_content
+  - if _has_attribution || _has_citetitle || _has_title
+    =newline
+    figcaption
+      - if _has_attribution
+        =local_attr :attribution
+        =spacer if _has_citetitle || _has_title
+      - if _has_citetitle
+        cite=local_attr :citetitle
+        =spacer if _has_title
+      - if _has_title
+        span.context=title

@@ -1,0 +1,61 @@
+[role="transition-green"]
+== VNodes
+
+== Regular Token Range Assignment
+[#drawing]
+
+*Token assignment is not always an even spread*
+
+[.cue]
+****
+In a perfect world, we would not have to decomission/recommision nodes. But, we are not in a perfect world and adding/removing nodes to your cluster is common. That said, with normal token range assignments, you have to ensure that your token assignments are evenly spread. Adding/removing nodes to your cluster can also make the system unbalanced for a time, and it also requires nodes with existing data to stream the data to the new node(s).
+
+For example, here is an unbalanced cluster. Notice the yellow node owns half of the token range.
+
+Animation 1: Here we see smaller circles representing partitions. A good partitioner evenly spreads the partition token assignments. The yellow node has double the number of partitions as the other two nodes.
+
+Animation 2: We wish to add a new node to the cluster.
+
+Animation 3: Ideally the new node splits the yellow node's token range assignment in half.
+
+Animation 4: Notice the new node does just that.
+
+Animation 5: Notice half the partitions in the yellow node fall into this light-blue token range, and thus Cassandra must now move them to the new node.
+
+Animation 6: The yellow node streams the pertinent replicas to the new nodes. Unfortunately this puts strain on the yellow node.
+****
+
+== VNodes
+
+[#vndes]
+
+*Each node has several tokens it manages*
+
+[.cue]
+****
+Cassandra's vnode feature helps mitigate this problem by having each physical node act more like several smaller virtual nodes. Let's examine how this works.
+
+Animation 1: Each node is now responsible for several smaller slices of the ring instead of just one large slice.
+
+Animation 2: Notice, with a consistent hash, all three nodes have roughly the same amount of data. That's because each node's smaller portions of the ring add up to one-third of the ring instead of one-half plus two one-fourth sections as we saw in the previous slide. This isn't such a big win so far however because in the previous example with just three nodes, we could have split our range into even thirds instead.
+
+Animation 3: One of the real wins with vnodes, however, is when a node wants to join or leave this cluster. Here the blue node wants to join the cluster as it did on the previous slide.
+
+Animation 4: Notice the token assignments again change, however, instead of the new node simply taking over one node's token range, the new node takes over portions of every node's range.
+
+Animation 5: Notice our partition colors for the blue node change to blue themselves. Now every node has some data that it must stream to the new node.
+
+Animation 6: Each node streams its data in parallel with the other nodes. This makes bootstrapping a new node into the cluster take much less time and takes the burden of doing this streaming off any single node.
+****
+
+== VNode Details
+
+* Adding/removing nodes with vnodes should not make the cluster unbalanced
+* By default, each node has 256 vnodes
+* VNodes automate token range assignment
+
+== Configuration
+
+* Configure vnode settings in cassandra.yaml
+* num_tokens
+* Value greater than one turns on vnodes

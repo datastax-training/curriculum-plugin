@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+   <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN"
+     "http://www.w3.org/TR/2001/
+      REC-SVG-20010904/DTD/svg10.dtd">
+      <svg xmlns="http://www.w3.org/2000/svg" width="388" height="388" aria-label="A chart." style="overflow: hidden;">
+        <defs id="defs"/><rect x="0" y="0" width="388" height="388" stroke="none" stroke-width="0" fill="#ffffff"/>
+        <g><path d="M194,194L194,20A174,174,0,0,1,368,194L194,194A0,0,0,0,0,194,194" stroke="#ffffff" stroke-width="0" fill="#007997"/></g>
+        <g><path d="M194,194L194,368A174,174,0,0,1,194,20L194,194A0,0,0,0,0,194,194" stroke="#ffffff" stroke-width="0" fill="#f3c716"/></g>
+        <g><path d="M194,194L368,194A174,174,0,0,1,194,368L194,194A0,0,0,0,0,194,194" stroke="#ffffff" stroke-width="0" fill="#9dd233"/></g>
+        <g/><circle cx="194" cy="194" r="155" fill="#FFFFFF" stroke="none" stroke-width="0"/></svg>

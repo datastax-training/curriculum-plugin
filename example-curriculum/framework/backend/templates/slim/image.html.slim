@@ -1,0 +1,24 @@
+- _target, _alt, _width, _height, _format, _reload = (local_attr :target), (local_attr :alt), (local_attr :width), (local_attr :height), (local_attr :format), ('true' if option? :reload)
+/ QUESTION support default image role?
+figure.image id=id class=[role, ('flux' if option? :flux)]
+  / TODO support link on image
+  / TODO append an index/counter to the alt attribute (since it is otherwise shared)
+  - _target.split(/[#,]/).each do |_target|
+    =newline
+    - if _format == 'svg' || (_target.include? '.svg') && ((_svg = option? :inline) || (_obj = option? :interactive))
+      - case
+      - when _svg
+        =include_svg _target
+      - when _obj
+        object type='image/svg+xml' data=(image_uri _target) width=_width height=_height data-reload=_reload
+          / TODO support fallback option
+          span.alt=_alt
+    - else
+      img src=(image_uri _target) alt=_alt width=_width height=_height data-reload=_reload
+  - if title?
+    =newline
+    figcaption=title
+  - if local_attr? :credit
+    =newline
+    / QUESTION sould we use data-credit on <figure> element instead?
+    small.credit=local_attr :credit
